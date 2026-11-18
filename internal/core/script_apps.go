@@ -10,7 +10,7 @@ import (
 )
 
 // FusionPBX's app/<name>/index.lua scripts, started as "app.lua <name> [args]" (Arg(1) is the
-// name, as argv[1]); the Go versions are registered with RegisterAppScript. Where RingQswitch
+// name, as argv[1]); the Go versions are registered with RegisterAppScript. Where ORswitch
 // already does the job natively the report (REPORT.md) says so; the scripts here are the ones with
 // no native equivalent:
 //

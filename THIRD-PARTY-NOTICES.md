@@ -1,6 +1,6 @@
 # Third-party notices
 
-RingQswitch is original software by RingQ Ltd. It includes, or works with,
+ORswitch is original software by RingQ Ltd. It includes, or works with,
 the components below from other authors, used under their licenses. The full
 license texts are in the folders named here (`vendor/<module>/LICENSE` for the
 Go modules).
@@ -25,7 +25,7 @@ Go modules).
 | Twemoji Country Flags font (country-flag-emoji-polyfill; flag art by Twemoji, Twitter, Inc. and contributors) | MIT (font packaging), CC-BY 4.0 (flag art) | `internal/web/static/fonts/TWEMOJI-FLAGS-LICENSE.md` |
 | VADER sentiment lexicon (sentiment analysis of transcripts) | MIT | `internal/transcribe/VADER-LICENSE.txt` |
 
-## Installed separately (not part of the RingQswitch binaries)
+## Installed separately (not part of the ORswitch binaries)
 
 | Component | License | How |
 |---|---|---|

@@ -367,5 +367,5 @@ PAGES.profile = async () => {
         if (n1.value !== n2.value) { err.textContent = 'The new passwords are different'; return; }
         try { await api('POST', 'password', { current: cur.value, new: n1.value }); toast('Password changed'); cur.value = n1.value = n2.value = ''; } catch (e) { err.textContent = e.message; }
       } }, 'Change password'))) :
-      h('div', { class: 'panel' }, 'The administrator password is set in /etc/ringqswitch/ringqswitch.xml (admin-password). Sign in with an extension to use the dialer, chat and meetings.'));
+      h('div', { class: 'panel' }, 'The administrator password is set in /etc/orswitch/orswitch.xml (admin-password). Sign in with an extension to use the dialer, chat and meetings.'));
 };

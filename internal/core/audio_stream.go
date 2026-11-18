@@ -20,7 +20,7 @@ import (
 	"github.com/ringq-devs/orswitch/internal/media"
 )
 
-// uuid_audio_stream: RingQswitch's version of the FreeSWITCH module mod_audio_stream
+// uuid_audio_stream: ORswitch's version of the FreeSWITCH module mod_audio_stream
 // (amigniter's, as built on the RingQ servers). A *tap*: it copies what the call says
 // to a websocket and never takes over the call's audio. RingQ uses it for
 //

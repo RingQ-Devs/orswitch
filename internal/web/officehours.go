@@ -128,7 +128,7 @@ func soundLanguages(soundsDir string) []map[string]string {
 func (s *Server) officeHoursAPI(ctx context.Context, w http.ResponseWriter, r *http.Request, p *principal, dom domainRow, parts []string) error {
 	for _, t := range []string{"q_time_schedules", "q_holidays", "q_holiday_exemptions", "v_domain_settings"} {
 		if !s.store.HasTable(t) {
-			return badRequest("the database has no %s table (RingQswitch creates it when manage-schema is on)", t)
+			return badRequest("the database has no %s table (ORswitch creates it when manage-schema is on)", t)
 		}
 	}
 	switch {

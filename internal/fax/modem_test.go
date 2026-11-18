@@ -46,7 +46,7 @@ func testPage(lines int) *Page {
 			}
 		}
 	}
-	p.Header("2026-10-09 12:00 RINGQSWITCH TEST P.1/1")
+	p.Header("2026-10-09 12:00 ORSWITCH TEST P.1/1")
 	return p
 }
 

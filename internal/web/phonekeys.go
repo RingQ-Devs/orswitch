@@ -32,7 +32,7 @@ const (
 
 var reParkSlot = regexp.MustCompile(`([1-5])\s*$`)
 
-// keyType reads a key type as RingQ or RingQswitch writes it.
+// keyType reads a key type as RingQ or ORswitch writes it.
 func keyType(v string) string {
 	switch k := strings.ToLower(strings.TrimSpace(v)); {
 	case k == "" || k == keyBlank || k == "none" || k == "empty":

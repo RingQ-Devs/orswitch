@@ -18,7 +18,7 @@ import (
 
 // Who may use the web interface:
 //
-//   - the administrator from ringqswitch.xml (admin-user / admin-password):
+//   - the administrator from orswitch.xml (admin-user / admin-password):
 //     everything, every domain;
 //   - extensions with web access (rq_web_users), signing in with their
 //     extension number (1001, or 1001@domain when the number exists in
@@ -199,7 +199,7 @@ func (s *Server) changePassword(ctx context.Context, w http.ResponseWriter, r *h
 		return errMethod
 	}
 	if p.Kind != "extension" {
-		return badRequest("the administrator password is set in ringqswitch.xml (admin-password)")
+		return badRequest("the administrator password is set in orswitch.xml (admin-password)")
 	}
 	var body struct{ Current, New string }
 	if err := decodeBody(r, &body); err != nil {

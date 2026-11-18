@@ -1,4 +1,4 @@
-// Package core is the RingQswitch switching core: registrar, call control
+// Package core is the ORswitch switching core: registrar, call control
 // (B2BUA), dialplan execution, applications, gateways and events.
 package core
 
@@ -21,7 +21,7 @@ import (
 	"github.com/ringq-devs/orswitch/internal/sip"
 )
 
-// Version is the RingQswitch version string.
+// Version is the ORswitch version string.
 var Version = "0.10.1"
 
 const allowHeader = "INVITE, ACK, BYE, CANCEL, OPTIONS, INFO, UPDATE, REFER, NOTIFY, SUBSCRIBE"
@@ -162,8 +162,8 @@ func (c *Core) Start() error {
 	go c.heartbeat()
 	go c.presenceLoop()
 	go func() { defer c.wg.Done(); c.cc.run(c.stop) }()
-	c.recordEvent("system", "RingQswitch "+Version+" started")
-	c.log.Info("RingQswitch started", "version", Version, "sip", fmt.Sprintf("%s:%d", s.SIPIP, stack.Port()),
+	c.recordEvent("system", "ORswitch "+Version+" started")
+	c.log.Info("ORswitch started", "version", Version, "sip", fmt.Sprintf("%s:%d", s.SIPIP, stack.Port()),
 		"tcp", s.EnableTCP, "rtp", fmt.Sprintf("%d-%d", s.RTPStartPort, s.RTPEndPort), "domain", s.Domain)
 	return nil
 }
@@ -380,7 +380,7 @@ func (c *Core) acceptSource(src sip.Addr) bool {
 	}
 	if c.guard.dropNotice(ip) {
 		c.log.Warn("ignoring SIP from banned address (SIP Guard)", "ip", ip, "protection", b.Jail,
-			"banned_until", b.Until.Format(time.RFC3339), "unban", "rq_cli -x \"unblock "+ip.String()+"\"")
+			"banned_until", b.Until.Format(time.RFC3339), "unban", "or_cli -x \"unblock "+ip.String()+"\"")
 	}
 	return false
 }

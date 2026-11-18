@@ -49,7 +49,7 @@ var reFaxNumber = regexp.MustCompile(`^\+?[0-9]{3,20}$`)
 
 func (s *Server) faxReady() error {
 	if s.store == nil || !s.store.HasTable("fax_jobs") || !s.store.HasTable("fax_domain_settings") {
-		return badRequest("the eFax tables are missing: restart RingQswitch once to add them")
+		return badRequest("the eFax tables are missing: restart ORswitch once to add them")
 	}
 	return nil
 }
@@ -590,7 +590,7 @@ func (s *Server) faxRecover() {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	tag, err := s.store.Pool().Exec(ctx, `update fax_jobs set status = 'failed', error_reason = 'RingQswitch restarted during the fax',
+	tag, err := s.store.Pool().Exec(ctx, `update fax_jobs set status = 'failed', error_reason = 'ORswitch restarted during the fax',
 		updated_at = $1 where status in ('dialing', 'sending', 'receiving')`, epoch())
 	if err != nil {
 		s.log.Warn("efax: recovering jobs", "err", err)

@@ -27,7 +27,7 @@ func init() {
 	apiCommands = map[string]apiCommand{
 		"help":           {"help", "list commands", apiHelp},
 		"status":         {"status", "switch status", apiStatus},
-		"version":        {"version", "version string", func(*Core, []string) (string, error) { return "RingQswitch " + Version + "\n", nil }},
+		"version":        {"version", "version string", func(*Core, []string) (string, error) { return "ORswitch " + Version + "\n", nil }},
 		"show":           {"show channels|calls|registrations|gateways|applications [as json]", "list objects", apiShow},
 		"uuid_kill":      {"uuid_kill <uuid> [cause]", "hang up a channel", apiUUIDKill},
 		"uuid_transfer":  {"uuid_transfer <uuid> <destination> [context]", "transfer a channel", apiUUIDTransfer},
@@ -134,7 +134,7 @@ func apiStatus(c *Core, _ []string) (string, error) {
 	s := c.config().Settings
 	srv, cli := c.stack.Counts()
 	st := c.stack.Stats()
-	return fmt.Sprintf("UP %s\nRingQswitch %s is ready (core %s)\n%d session(s) since startup\n%d session(s) active - max %d\n%s%d registration(s)\n%d address(es) blocked for failed authentication\n%d rtp port pair(s) in use (range %d-%d)\n%d sip transaction(s) (%d server, %d client)\nsip messages: %d received, %d sent, %d not SIP, %d invalid, %d from blocked addresses, %d send errors\nSIP %s:%d (tcp=%v) domain %s\nmemory %d MiB, %d goroutines\n",
+	return fmt.Sprintf("UP %s\nORswitch %s is ready (core %s)\n%d session(s) since startup\n%d session(s) active - max %d\n%s%d registration(s)\n%d address(es) blocked for failed authentication\n%d rtp port pair(s) in use (range %d-%d)\n%d sip transaction(s) (%d server, %d client)\nsip messages: %d received, %d sent, %d not SIP, %d invalid, %d from blocked addresses, %d send errors\nSIP %s:%d (tcp=%v) domain %s\nmemory %d MiB, %d goroutines\n",
 		up, Version, c.coreUUID, c.sessionsTotal.Load(), c.channelCount(), s.MaxSessions, c.fsStatusLines(), c.reg.count(), len(c.guard.addresses()),
 		c.media.InUse(), s.RTPStartPort, s.RTPEndPort, srv+cli, srv, cli, st.Received, st.Sent, st.Unparsable, st.Invalid, st.Filtered, st.SendErrors, s.SIPIP, c.stack.Port(), s.EnableTCP, s.Domain,
 		ms.Alloc>>20, runtime.NumGoroutine()), nil
@@ -516,7 +516,7 @@ func apiUnblock(c *Core, args []string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if !c.guard.unban(ip, "", "rq_cli") {
+	if !c.guard.unban(ip, "", "or_cli") {
 		return "", fmt.Errorf("%s is not blocked", ip)
 	}
 	return "+OK\n", nil

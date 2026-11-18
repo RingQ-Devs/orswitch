@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Interoperability test: drives a real ringqswitch process with an
+# Interoperability test: drives a real orswitch process with an
 # independent SIP traffic generator (the sipp command of the sip-tester
 # package: apt install sip-tester).
 #
@@ -14,13 +14,13 @@ PORT=5070
 PASS="interop-pass"
 ESL_PASS="interop-esl"
 CALLS="${CALLS:-0}"
-trap 'kill $RQ_PID 2>/dev/null || true; wait $RQ_PID 2>/dev/null || true; rm -rf "$WORK"' EXIT
+trap 'kill $OR_PID 2>/dev/null || true; wait $OR_PID 2>/dev/null || true; rm -rf "$WORK"' EXIT
 
 command -v sipp >/dev/null || { echo "the SIP traffic generator is not installed (apt install sip-tester)"; exit 2; }
 
 mkdir -p "$WORK/conf"
 cp -r "$ROOT/conf/directory" "$ROOT/conf/dialplan" "$WORK/conf/"
-cat > "$WORK/conf/ringqswitch.xml" <<EOF
+cat > "$WORK/conf/orswitch.xml" <<EOF
 <configuration>
   <vars>
     <var name="domain" value="127.0.0.1"/>
@@ -29,7 +29,7 @@ cat > "$WORK/conf/ringqswitch.xml" <<EOF
     <var name="busy" value="%(500,500,480,620)"/>
   </vars>
   <settings>
-    <param name="log-level" value="${RQ_LOG_LEVEL:-warn}"/>
+    <param name="log-level" value="${OR_LOG_LEVEL:-warn}"/>
     <param name="sip-ip" value="127.0.0.1"/>
     <param name="sip-port" value="$PORT"/>
     <param name="rtp-ip" value="127.0.0.1"/>
@@ -43,16 +43,16 @@ cat > "$WORK/conf/ringqswitch.xml" <<EOF
 </configuration>
 EOF
 
-(cd "$ROOT" && go build -o "$WORK/ringqswitch" ./cmd/ringqswitch && go build -o "$WORK/rq_cli" ./cmd/rq_cli)
+(cd "$ROOT" && go build -o "$WORK/orswitch" ./cmd/orswitch && go build -o "$WORK/or_cli" ./cmd/or_cli)
 # Ports this test needs must be free (another PBX on the box would collide).
 if command -v ss >/dev/null && ss -lun | grep -q ":$PORT "; then
   echo "port $PORT/udp is already in use; stop the other service or edit PORT in $0"; exit 2
 fi
-"$WORK/ringqswitch" -conf "$WORK/conf" 2> "$WORK/ringqswitch.log" &
-RQ_PID=$!
+"$WORK/orswitch" -conf "$WORK/conf" 2> "$WORK/orswitch.log" &
+OR_PID=$!
 sleep 1
 
-cli() { "$WORK/rq_cli" -P 8031 -p "$ESL_PASS" -x "$1"; }
+cli() { "$WORK/or_cli" -P 8031 -p "$ESL_PASS" -x "$1"; }
 pass=0; fail=0
 check() { # name, command...
   local name="$1"; shift
@@ -81,7 +81,7 @@ UAS_PID=$!
 sleep 0.5
 check bridge_call "${GEN[@]}" -sf "$HERE/uac_auth.xml" -s 1001 -au 1000 -ap "$PASS" -set caller 1000 -p 5095
 check bridge_callee wait $UAS_PID
-check channels_cleared bash -c "[ \"\$($WORK/rq_cli -P 8031 -p $ESL_PASS -x 'show channels' | tail -1)\" = '0 total.' ]"
+check channels_cleared bash -c "[ \"\$($WORK/or_cli -P 8031 -p $ESL_PASS -x 'show channels' | tail -1)\" = '0 total.' ]"
 
 # 4. Optional load test through the bridge path.
 if [ "$CALLS" -gt 0 ]; then
@@ -93,7 +93,7 @@ if [ "$CALLS" -gt 0 ]; then
     -set caller 1000 -m "$CALLS" -r 20 -l 100 -timeout 180s -timeout_error -nostdin
   check "load_${CALLS}_callee" wait $UAS_PID
   sleep 0.5
-  check load_channels_cleared bash -c "[ \"\$($WORK/rq_cli -P 8031 -p $ESL_PASS -x 'show channels' | tail -1)\" = '0 total.' ]"
+  check load_channels_cleared bash -c "[ \"\$($WORK/or_cli -P 8031 -p $ESL_PASS -x 'show channels' | tail -1)\" = '0 total.' ]"
 fi
 
 echo
@@ -102,6 +102,6 @@ echo "CDR lines: $(($(wc -l < "$WORK/cdr.csv") - 1))"
 echo "CDR hangup causes: $(tail -n +2 "$WORK/cdr.csv" | awk -F, '{print $12}' | sort | uniq -c | tr '\n' ' ')"
 echo "$pass passed, $fail failed"
 if [ "$fail" -gt 0 ]; then
-  echo "--- ringqswitch log (tail) ---"; tail -40 "$WORK/ringqswitch.log"
+  echo "--- orswitch log (tail) ---"; tail -40 "$WORK/orswitch.log"
   exit 1
 fi

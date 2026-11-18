@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <!-- REGISTER with digest authentication. Needs: -s <user> -au <user> -ap <password> -->
-<scenario name="RingQswitch register">
+<scenario name="ORswitch register">
   <send retrans="500">
     <![CDATA[
       REGISTER sip:[remote_ip] SIP/2.0
@@ -12,7 +12,7 @@
       Contact: <sip:[service]@[local_ip]:[local_port];transport=[transport]>
       Expires: 300
       Max-Forwards: 70
-      User-Agent: RingQswitch interop test
+      User-Agent: ORswitch interop test
       Content-Length: 0
     ]]>
   </send>
@@ -29,7 +29,7 @@
       [authentication]
       Expires: 300
       Max-Forwards: 70
-      User-Agent: RingQswitch interop test
+      User-Agent: ORswitch interop test
       Content-Length: 0
     ]]>
   </send>

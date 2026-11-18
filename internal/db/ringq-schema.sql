@@ -1,6 +1,6 @@
 -- The subset of the RingQ database schema (including the live state tables)
--- that RingQswitch reads and writes, with the column types RingQ uses.
--- Built into the binary: "ringqswitch -init-db" creates the tables that are
+-- that ORswitch reads and writes, with the column types RingQ uses.
+-- Built into the binary: "orswitch -init-db" creates the tables that are
 -- missing (all of them in a new database, none in a complete RingQ database).
 -- Also used by the database integration tests.
 create table v_domains (

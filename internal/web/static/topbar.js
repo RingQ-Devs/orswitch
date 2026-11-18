@@ -4,9 +4,9 @@
 // menu (who I am, my status, the devices signed in as my extension, my
 // profile, sign out, and the version with its previous builds).
 
-// The builds of RingQswitch, newest first (Previous builds).
+// The builds of ORswitch, newest first (Previous builds).
 const BUILDS = [
-  ['0.10.1', '2026-10-22', 'RingQswitch branding in every guide, sample file, script and portal text; complete API reference (commands, events, WebSocket messages, listening ports); the speech recogniser installed as rq-speech; make interop; use-certificate.sh.'],
+  ['0.10.1', '2026-10-22', 'ORswitch branding in every guide, sample file, script and portal text; complete API reference (commands, events, WebSocket messages, listening ports); the speech recogniser installed as rq-speech; make interop; use-certificate.sh.'],
   ['0.10.0', '2026-10-21', 'Language & office hours as in RingQ (time zone, office and break hours with actions, holidays with greetings and MP3 uploads, exemptions); Security settings in tabs: Allowed countries with flags, PIN-based dialing, web Allow/Deny and auto logout, global IP restriction, SIP Guard (protections with failures, window and ban; live bans; history and stats).'],
   ['0.9.1', '2026-10-21', 'Dialer: BLF and Parked slide out on the dialer\'s left as in the RingQ apps (a handle on its edge, BLF and Parked tabs with the count of parked calls), in place of the Keys tab.'],
   ['0.9.0', '2026-10-21', 'Desk phone keys: BLF lamps for desk phones and the dialer (extensions, parking slots 1-5), message lamp, DND key in step with the apps; phone keys per extension and company with Reboot phone; dialer Keys tab and DTMF sequences; dial codes *8 pickup, *591-*595 park, *26N status, *78/*79/*77 DND, own extension = voicemail menu, *69, *870, *88.'],
@@ -30,9 +30,9 @@ const BUILDS = [
   ['0.5.7', '2026-10-09', 'Signing in to the portal logs the queue agent in (the wallboard counts everyone signed in); signing out of one of two browsers keeps it in.'],
   ['0.5.6', '2026-10-09', 'Call Flow drag and drop both ways: drag a linked DID back to Available DID Numbers to unlink it.'],
   ['0.5.5', '2026-10-09', 'Call Flow like RingQ: SIP trunks, gateways and DIDs on one page; drag a DID onto IVR, Queue, Extension or Others and choose which one in a window. Hotel front desk: check-in, check-out and wake-up calls. The dialer fits the window without scrolling.'],
-  ['0.5.4', '2026-10-09', 'rq_cli console (banner, no password, live colour log with the dialplan trace). Web passwords can be seen on the extension page. The browser dialer registers by itself after sign-in. Signing out of the portal logs an agent out of its queues. Real wait times in reports. Dialer without a scroll bar.'],
+  ['0.5.4', '2026-10-09', 'or_cli console (banner, no password, live colour log with the dialplan trace). Web passwords can be seen on the extension page. The browser dialer registers by itself after sign-in. Signing out of the portal logs an agent out of its queues. Real wait times in reports. Dialer without a scroll bar.'],
   ['0.5.3', '2026-10-08', 'Top bar like RingQ: user menu with connected devices, Call status, clear the cache, languages. Notifications at the top right. The organizer admits meeting attendees. Standard SIP profiles. Passwords hidden with an eye.'],
-  ['0.5.2', '2026-10-08', 'Global settings, outbound rules and SIP profiles like RingQ. Queue details on the wallboard. Database tools can read RingQswitch tables.'],
+  ['0.5.2', '2026-10-08', 'Global settings, outbound rules and SIP profiles like RingQ. Queue details on the wallboard. Database tools can read ORswitch tables.'],
   ['0.5.1', '2026-10-08', 'Meet window like RingQ, the guest page and meeting content (chat, whiteboard, files, transcript). Dialer audio check.'],
   ['0.5.0', '2026-10-08', 'User roles board and the Manager role, team directory, contacts, the RingQ look (Inter font).'],
   ['0.4.2', '2026-10-08', 'Dialer and meeting audio fix; audio over TCP on the web port when UDP is blocked.'],
@@ -93,7 +93,7 @@ const Topbar = (() => {
       h('div', { class: 'um-sec links' },
         h('a', { href: '#/profile', role: 'menuitem' }, icon('user', 17), t('View profile')),
         h('button', { type: 'button', role: 'menuitem', class: 'um-logout', onclick: signOut }, icon('logout', 17), t('Logout'))),
-      h('div', { class: 'um-foot' }, h('span', null, (S.me.brand || 'RingQswitch') + ' ' + S.me.version),
+      h('div', { class: 'um-foot' }, h('span', null, (S.me.brand || 'ORswitch') + ' ' + S.me.version),
         h('button', { type: 'button', class: 'mt-link um-builds', onclick: (e) => { e.stopPropagation(); closeMenus(); showBuilds(); } }, t('Previous builds'))));
   }
 
@@ -103,9 +103,9 @@ const Topbar = (() => {
     back.addEventListener('click', (e) => { if (e.target === back) close(); });
     back.append(h('div', { class: 'modal builds', role: 'dialog', 'aria-label': t('Previous builds') },
       h('div', { class: 'builds-head' }, h('h2', null, t('Previous builds')), h('button', { type: 'button', class: 'note-x', 'aria-label': t('Close'), onclick: close }, icon('x', 16))),
-      h('p', { class: 'muted' }, t('This server runs') + ' ', h('b', null, (S.me.brand || 'RingQswitch') + ' ' + S.me.version), '.'),
+      h('p', { class: 'muted' }, t('This server runs') + ' ', h('b', null, (S.me.brand || 'ORswitch') + ' ' + S.me.version), '.'),
       h('ol', { class: 'builds-list' }, BUILDS.map(([v, d, what]) => h('li', { class: v === S.me.version ? 'now' : '' },
-        h('div', null, h('b', null, 'RingQswitch ' + v), v === S.me.version ? h('span', { class: 'badge green' }, t('Installed')) : null, h('span', { class: 'muted small' }, d)),
+        h('div', null, h('b', null, 'ORswitch ' + v), v === S.me.version ? h('span', { class: 'badge green' }, t('Installed')) : null, h('span', { class: 'muted small' }, d)),
         h('p', null, what))))));
     document.body.append(back);
   }

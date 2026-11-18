@@ -30,7 +30,7 @@ const (
 	aiCrawlPageMax  = 3 << 20 // bytes read per page
 	aiChunkSize     = 900     // characters per chunk
 	aiChunksMax     = 600
-	aiCrawlAgent    = "RingQswitch-AIAgent/1.0 (+knowledge fetch for a voice assistant)"
+	aiCrawlAgent    = "ORswitch-AIAgent/1.0 (+knowledge fetch for a voice assistant)"
 	aiInlineWeb     = 10000 // web text up to this goes into the instructions
 	aiInlineFAQ     = 14000
 	aiSearchResults = 3

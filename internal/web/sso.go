@@ -361,7 +361,7 @@ func (s *Server) ssoRedirect(r *http.Request, provider string) string {
 // ssoAdminAPI: the domain's providers and sign-in options (owners).
 func (s *Server) ssoAdminAPI(ctx context.Context, w http.ResponseWriter, r *http.Request, p *principal, dom domainRow, parts []string) error {
 	if !s.store.HasTable("rq_sso_providers") {
-		return badRequest("the sign-in tables are missing: restart RingQswitch once to add them")
+		return badRequest("the sign-in tables are missing: restart ORswitch once to add them")
 	}
 	switch {
 	case len(parts) == 0 && r.Method == http.MethodGet:

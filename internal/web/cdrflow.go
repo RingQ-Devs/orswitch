@@ -10,7 +10,7 @@ import (
 )
 
 // A call's path in Call history (GET /api/d/{domain}/cdr/{uuid}/flow):
-// the steps RingQswitch kept while the call ran (the variable
+// the steps ORswitch kept while the call ran (the variable
 // rq_call_flow, stored with the CDR), or, for calls without them, what the
 // call record tells.
 
@@ -87,7 +87,7 @@ func hangupText(cause string) string {
 }
 
 // flowFromCDR rebuilds a call's path from its record (calls made before
-// RingQswitch kept one, or written by the previous switch).
+// ORswitch kept one, or written by the previous switch).
 func flowFromCDR(r map[string]string) []flowStep {
 	var out []flowStep
 	add := func(at int64, kind, text string) {

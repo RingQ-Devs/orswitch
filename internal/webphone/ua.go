@@ -1,5 +1,5 @@
 // Package webphone is the SIP side of the browser dialer: a small SIP user
-// agent that registers to RingQswitch as the signed-in extension (like a
+// agent that registers to ORswitch as the signed-in extension (like a
 // desk phone would) and places and receives its calls. The web package
 // connects its audio to the browser over WebRTC. Because it is an ordinary
 // SIP phone to the switch, every feature (dialplan, voicemail, queues,

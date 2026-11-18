@@ -201,13 +201,13 @@ func aiParseURLs(v string) ([]string, error) {
 
 type aiConfig struct {
 	Key, Model, URL string
-	FromEnv         bool // the key is the server's RQ_AI_API_KEY
+	FromEnv         bool // the key is the server's OR_AI_API_KEY
 }
 
-// aiEnvKey is the key set in the service's environment: RQ_AI_API_KEY, or
+// aiEnvKey is the key set in the service's environment: OR_AI_API_KEY, or
 // the variable the voice AI service's own tools use.
 func aiEnvKey() string {
-	if k := strings.TrimSpace(os.Getenv("RQ_AI_API_KEY")); k != "" {
+	if k := strings.TrimSpace(os.Getenv("OR_AI_API_KEY")); k != "" {
 		return k
 	}
 	return strings.TrimSpace(os.Getenv("OPENAI_API_KEY"))
@@ -236,7 +236,7 @@ func aiKeyHint(k string) string {
 
 func (s *Server) aiAPI(ctx context.Context, w http.ResponseWriter, r *http.Request, p *principal, dom domainRow, parts []string) error {
 	if !s.store.HasTable("rq_ai_agents") || !s.store.HasTable("rq_ai_calls") {
-		return badRequest("AI agents need RingQswitch's rq_ai_ tables (the database user cannot create them)")
+		return badRequest("AI agents need ORswitch's rq_ai_ tables (the database user cannot create them)")
 	}
 	switch part(parts, 0) {
 	case "calls":

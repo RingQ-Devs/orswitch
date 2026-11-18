@@ -4,7 +4,7 @@
   for 200, ACK, hold the call, BYE.
   Needs: -s <destination> -au <user> -ap <password> -set caller <user>
 -->
-<scenario name="RingQswitch authenticated UAC">
+<scenario name="ORswitch authenticated UAC">
   <Global variables="caller"/>
   <send retrans="500">
     <![CDATA[

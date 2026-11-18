@@ -76,7 +76,7 @@ func digitsOf(s string) string {
 
 func (s *Server) contactsAPI(ctx context.Context, w http.ResponseWriter, r *http.Request, p *principal, dom domainRow, parts []string) error {
 	if !s.store.HasTable("rq_contacts") {
-		return badRequest("the database has no rq_contacts table (restart RingQswitch to create it)")
+		return badRequest("the database has no rq_contacts table (restart ORswitch to create it)")
 	}
 	id := part(parts, 0)
 	pool := s.store.Pool()

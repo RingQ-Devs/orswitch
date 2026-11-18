@@ -77,7 +77,7 @@ var reLanguage = regexp.MustCompile(`^(auto|[a-z]{2,3})$`)
 
 func (s *Server) trReady() error {
 	if s.store == nil || !s.store.HasTable("rq_transcripts") || !s.store.HasTable("rq_transcription_settings") {
-		return badRequest("the transcription tables are missing: restart RingQswitch once to add them")
+		return badRequest("the transcription tables are missing: restart ORswitch once to add them")
 	}
 	return nil
 }
@@ -118,7 +118,7 @@ func (s *Server) trCheckEngine() {
 	models := transcribe.InstalledModels(append([]string{s.trModelDir()}, transcribe.SystemModelDirs...), s.trModelDir())
 	var def transcribe.Installed
 	if cfg.TranscribeModel != "" {
-		// The model set in ringqswitch.xml is the default.
+		// The model set in orswitch.xml is the default.
 		if st, e := os.Stat(cfg.TranscribeModel); e == nil && st.Size() > 0 {
 			name := strings.TrimSuffix(strings.TrimPrefix(filepath.Base(cfg.TranscribeModel), "ggml-"), ".bin")
 			def = transcribe.Installed{Name: name, Path: cfg.TranscribeModel, Size: st.Size()}

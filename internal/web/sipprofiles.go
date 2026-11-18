@@ -12,8 +12,8 @@ import (
 )
 
 // SIP profiles (Global settings → SIP Profile): the RingQ portal's v_sip_profiles
-// with their main settings. RingQswitch opens each enabled profile's port
-// (the main port of ringqswitch.xml is always open).
+// with their main settings. ORswitch opens each enabled profile's port
+// (the main port of orswitch.xml is always open).
 //
 //	GET    /api/sipprofiles         the profiles and whether their ports are open
 //	POST   /api/sipprofiles         {name, description, enabled, sip_ip, port, protocol, ext_sip_ip}
@@ -206,7 +206,7 @@ func setProfileSetting(ctx context.Context, tx pgx.Tx, profile, name, value stri
 }
 
 // ensureProfileTables creates the RingQ portal's SIP profile tables in a database
-// that has none (a new RingQswitch database).
+// that has none (a new ORswitch database).
 func (s *Server) ensureProfileTables(ctx context.Context) error {
 	if s.store.HasTable("v_sip_profiles") && s.store.HasTable("v_sip_profile_settings") {
 		return nil

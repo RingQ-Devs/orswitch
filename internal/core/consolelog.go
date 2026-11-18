@@ -11,7 +11,7 @@ import (
 )
 
 // Console log lines, the ones the console shows ("New Channel ...",
-// "Dialplan: ... Regex (PASS) ...", "EXECUTE ...", "Hangup ..."): rq_cli
+// "Dialplan: ... Regex (PASS) ...", "EXECUTE ...", "Hangup ..."): or_cli
 // follows them with "log 7".
 
 // logAt logs msg at level with the file and line of its caller.

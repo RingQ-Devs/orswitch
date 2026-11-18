@@ -1,23 +1,23 @@
-# RingQswitch control API: event socket reference
+# ORswitch control API: event socket reference
 
-RingQswitch is controlled through its **event socket**: a plain-text TCP
+ORswitch is controlled through its **event socket**: a plain-text TCP
 protocol. One connection can run commands, receive asynchronous results and
 stream real-time events. This is the interface for your API servers,
-wallboards and CTI integrations, and it is what `rq_cli` uses.
+wallboards and CTI integrations, and it is what `or_cli` uses.
 
 > **Stable for integrations.** The protocol, command names, JSON shapes and
 > event format are stable: the RingQ portal and existing event socket client
 > libraries work unchanged (connect, `api`, `bgapi`, `show ... as json`, event
 > subscriptions, filters). Section 9 lists what is supported and what is not
-> yet implemented. Section 11 lists every port RingQswitch listens on.
+> yet implemented. Section 11 lists every port ORswitch listens on.
 
-All examples below were captured from a running RingQswitch 0.1.0.
+All examples below were captured from a running ORswitch 0.1.0.
 
 ---
 
 ## 1. Connecting
 
-| Setting (`ringqswitch.xml`) | Default | Notes |
+| Setting (`orswitch.xml`) | Default | Notes |
 |---|---|---|
 | `event-socket-listen` | `127.0.0.1:8021` | empty value disables the socket |
 | `event-socket-password` | (required) | sent with `auth` |
@@ -36,7 +36,7 @@ body of `Content-Length` bytes:
 Content-Type: api/response
 Content-Length: 22
 
-RingQswitch 0.1.0
+ORswitch 0.1.0
 ```
 
 Commands from the client are a command line, optional `Name: value` header
@@ -71,7 +71,7 @@ The client has 15 seconds to authenticate. Failed attempts are logged as
 | `filter delete <Header> [<value>]` | `+OK filter deleted. ...` | Remove filters |
 | `myevents <uuid> [plain\|json]` | `+OK Events Enabled` | All events of one channel (shortcut for `event ALL` + `filter Unique-ID <uuid>`) |
 | `sendmsg <uuid>` + header `call-command: hangup` (+ `hangup-cause: USER_BUSY`) | `+OK` | Hang up a channel. Other call-commands reply `-ERR ... not supported yet` |
-| `log [level]` | `+OK log level DEBUG [7]` | Follow the log, as `rq_cli` does: `log/data` messages (headers `Log-Level` 0-7, `Log-File`, `Log-Line`, `Log-Func`, `User-Data` = the call's uuid) whose body is the console line: `2026-10-09 10:18:22.557704 [NOTICE] inbound.go:170 New Channel ...`, or the dialplan trace as is (`Dialplan: ... Regex (PASS) [ext] destination_number(1021) =~ /^1021$/ break=on-false`, `EXECUTE [depth=0] ... bridge(...)`). Level: `7`/`debug` (everything, with the dialplan trace), `6`/`info`, `5`/`notice`, `4`/`warning`, `3`/`err`; independent of the service's own log level |
+| `log [level]` | `+OK log level DEBUG [7]` | Follow the log, as `or_cli` does: `log/data` messages (headers `Log-Level` 0-7, `Log-File`, `Log-Line`, `Log-Func`, `User-Data` = the call's uuid) whose body is the console line: `2026-10-09 10:18:22.557704 [NOTICE] inbound.go:170 New Channel ...`, or the dialplan trace as is (`Dialplan: ... Regex (PASS) [ext] destination_number(1021) =~ /^1021$/ break=on-false`, `EXECUTE [depth=0] ... bridge(...)`). Level: `7`/`debug` (everything, with the dialplan trace), `6`/`info`, `5`/`notice`, `4`/`warning`, `3`/`err`; independent of the service's own log level |
 | `nolog` | `+OK no longer logging` | Stop following the log |
 | `linger`, `nolinger`, `divert_events` | `+OK` | Accepted for compatibility (no effect) |
 | `exit` | `+OK bye` + `text/disconnect-notice` | Close the connection |
@@ -82,14 +82,14 @@ Unknown commands reply `-ERR command not found`.
 
 ## 3. API commands
 
-Use them through `api` / `bgapi`, `rq_cli -x "<command>"`, or the `rq_cli`
+Use them through `api` / `bgapi`, `or_cli -x "<command>"`, or the `or_cli`
 prompt. On failure the output starts with `-ERR`.
 
 ### `status`
 
 ```
 UP 2s
-RingQswitch 0.10.1 is ready (core e02d33d9-6291-4cf9-85e2-292ec4cad8a1)
+ORswitch 0.10.1 is ready (core e02d33d9-6291-4cf9-85e2-292ec4cad8a1)
 1 session(s) since startup
 1 session(s) active - max 1000
 1 registration(s)
@@ -103,7 +103,7 @@ memory 0 MiB, 14 goroutines
 
 ### `version`
 
-`RingQswitch 0.10.1`
+`ORswitch 0.10.1`
 
 ### `show registrations [as json]`
 
@@ -212,7 +212,7 @@ variable_uuid: 65da23f5-1f1c-4696-8867-0cee8131b062
 | `uuid_answer <uuid>` | | `+OK` |
 | `uuid_park <uuid>` | | `+OK`: the channel leaves what it was doing and waits |
 | `uuid_bridge <uuid> <other_uuid>` | | `+OK <other_uuid>`: connects two existing channels |
-| `uuid_record <uuid> start\|stop <path>` | `uuid_record 65da... start /var/lib/ringqswitch/recordings/x.wav` | `+OK Success`: records both parties (WAV) |
+| `uuid_record <uuid> start\|stop <path>` | `uuid_record 65da... start /var/lib/orswitch/recordings/x.wav` | `+OK Success`: records both parties (WAV) |
 | `uuid_broadcast <uuid> <file> [aleg\|bleg\|both]` | | `+OK Message sent`: plays a file to the channel(s) |
 | `hupall [CAUSE]` | `hupall` | `+OK hung up 3 channel(s)` |
 
@@ -234,7 +234,7 @@ until answered or failed. Use `bgapi originate ...` to avoid blocking.
 | `originate user/1000 9197` | Ring extension 1000, then connect it to the tone |
 | `originate user/1000 1001 XML default "Front Desk" 200` | Click-to-call: ring 1000, then dial 1001 with caller ID "Front Desk" <200> |
 | `originate {origination_caller_id_name='Front Desk',call_timeout=20}user/1000 9197` | Variables in `{...}`; spaces inside quotes are fine |
-| `originate {origination_caller_id_number=6567157042}gateway/main/91234567 &playback(/var/lib/ringqswitch/sounds/promo.wav)` | Call out via a trunk and play a file |
+| `originate {origination_caller_id_number=6567157042}gateway/main/91234567 &playback(/var/lib/orswitch/sounds/promo.wav)` | Call out via a trunk and play a file |
 | `originate user/1000,user/1001 2000` | Ring both, first to answer wins |
 
 Result: `+OK <uuid>`, or `-ERR <CAUSE>` (e.g. `-ERR USER_NOT_REGISTERED`,
@@ -340,7 +340,7 @@ variable as `variable_<name>` headers, plus: `Unique-ID`, `Channel-Name`,
 `-Answered-Time`, `-Progress-Time`, `-Hangup-Time` (microseconds), and while
 bridged `Other-Type`, `Other-Leg-Unique-ID`, `Other-Leg-Caller-ID-Name`,
 `Other-Leg-Caller-ID-Number`, `Other-Leg-Destination-Number`. Every event
-has `RingQswitch-Hostname`, `RingQswitch-Switchname`, `RingQswitch-IPv4`,
+has `ORswitch-Hostname`, `ORswitch-Switchname`, `ORswitch-IPv4`,
 `Core-UUID` and `Event-Sequence` (the three host headers are also sent under
 the older prefix that existing integrations filter on).
 
@@ -401,7 +401,7 @@ Core-UUID: e02d33d9-6291-4cf9-85e2-292ec4cad8a1
 // Node.js 18 or later, no packages needed.
 const net = require('net');
 
-const sock = net.connect(Number(process.env.RQ_ESL_PORT || 8021), '127.0.0.1');
+const sock = net.connect(Number(process.env.OR_ESL_PORT || 8021), '127.0.0.1');
 const send = (cmd) => sock.write(cmd + '\n\n');
 let buf = Buffer.alloc(0);
 
@@ -427,7 +427,7 @@ sock.on('data', (chunk) => {
 function onMessage(h, body) {
   switch (h['Content-Type']) {
     case 'auth/request':
-      send('auth ' + process.env.RQ_ESL_PASSWORD);
+      send('auth ' + process.env.OR_ESL_PASSWORD);
       break;
     case 'command/reply':
       if (h['Reply-Text'] === '+OK accepted') {
@@ -451,7 +451,7 @@ function onMessage(h, body) {
 }
 ```
 
-Run it with `RQ_ESL_PASSWORD=... node client.js`.
+Run it with `OR_ESL_PASSWORD=... node client.js`.
 
 ### Python (standard library only)
 
@@ -484,9 +484,9 @@ while True:
 ### Command line
 
 ```bash
-sudo rq_cli -x "show registrations as json"   # the password is read from /etc/ringqswitch/ringqswitch.xml
-sudo rq_cli                   # interactive, with the live log; /log info, /nolog, /events plain ALL
-rq_cli -H 10.0.0.5 -P 8021 -p PASSWORD        # another server
+sudo or_cli -x "show registrations as json"   # the password is read from /etc/orswitch/orswitch.xml
+sudo or_cli                   # interactive, with the live log; /log info, /nolog, /events plain ALL
+or_cli -H 10.0.0.5 -P 8021 -p PASSWORD        # another server
 ```
 
 ---
@@ -574,12 +574,12 @@ hangup_cause, bridge_uuid, sip_call_id, network_addr, user_name, gateway_name`
 
 ## 10. Web interface JSON API
 
-The web interface (`<web>` in `ringqswitch.xml`, see [WEB-UI.md](WEB-UI.md))
+The web interface (`<web>` in `orswitch.xml`, see [WEB-UI.md](WEB-UI.md))
 is a single-page application on top of a JSON API that your own software can
 use too. All paths start with `/api/`.
 
 **Authentication.** `POST /api/login` with `{"user": "admin", "password":
-"..."}` (the server administrator from `ringqswitch.xml`) or `{"user":
+"..."}` (the server administrator from `orswitch.xml`) or `{"user":
 "1001", "password": "<web password>"}` (an extension with web access;
 `1001@example.com` when several domains have that number) sets an HttpOnly
 session cookie (12 hours, renewed on use). Every other request needs that
@@ -627,7 +627,7 @@ voicemail. A `user` extension can read `live`, `meta`, `directory`,
 | `POST /api/dnd` | Extensions: `{"on": true}` sets do-not-disturb on your extension |
 | `POST /api/originate` | Click-to-call: `{"extension": "1001", "destination": "6591234567", "domain": "example.com"}` rings the extension, then calls the number |
 | `GET /api/d/{domain}/cdr?from=YYYY-MM-DD&to=YYYY-MM-DD&q=&direction=&status=&limit=&offset=` | Call history `{rows, total}` (`all=1` instead of `from`/`to`: the whole history; `limit` default 100, at most 10000). `waitsec` is how long the caller waited for a person (a queue call: from joining the queue until an agent answered or the caller gave up; other calls: until bridged or answered; a missed call: as long as it rang); `talksec` is the talk time (a queue call: from the agent's answer; else `billsec`); `answered_by` and `ended_by` (who hung up, or `the system`) when the call kept its path |
-| `GET /api/d/{domain}/cdr/{uuid}/flow` | The call's path `{steps: [{t, k, x}], kept}`: `t` Unix ms, `k` the kind (`start`, `route`, `ivr`, `digits`, `queue`, `ring_group`, `ring`, `no_answer`, `answer`, `voicemail`, `conference`, `hangup`, `end`), `x` the text ("Tan Wei Ming (6591234567) called 6531590077 (trunk Main)", "Answered by Boboy Testing (1001)"...). `kept`: false when rebuilt from the call record (calls before 0.6.1, or CDRs written by the previous switch). RingQswitch keeps the path in the CDR's variables as `rq_call_flow` (JSON) |
+| `GET /api/d/{domain}/cdr/{uuid}/flow` | The call's path `{steps: [{t, k, x}], kept}`: `t` Unix ms, `k` the kind (`start`, `route`, `ivr`, `digits`, `queue`, `ring_group`, `ring`, `no_answer`, `answer`, `voicemail`, `conference`, `hangup`, `end`), `x` the text ("Tan Wei Ming (6591234567) called 6531590077 (trunk Main)", "Answered by Boboy Testing (1001)"...). `kept`: false when rebuilt from the call record (calls before 0.6.1, or CDRs written by the previous switch). ORswitch keeps the path in the CDR's variables as `rq_call_flow` (JSON) |
 | `GET /api/d/{domain}/cdr/{uuid}/recording` | The call's recording (WAV) |
 | `GET /api/d/{domain}/transcription`, `PUT ...` | Owners: call transcription. GET answers `{settings: {enabled, scope, language, model, voicemail, live, live_model}, engine: {ok, command, model, error}, models: [{name, title, size, note, installed, path, removable, download: {done, total, error}}], default_model, model_in_use, live_model_in_use, live_default_model, live_server, live_running, live_error, can_manage_models, model_dir, counts: {queued, processing, done, empty, failed}, threads, workers, min_seconds}` (counts: the last 24 hours, plus all waiting); PUT `{"enabled": true, "scope": "external" \| "all", "language": "auto" \| "en" \| "ms"..., "model": "" \| "small"..., "voicemail": true, "live": true, "live_model": "" \| "base"...}` (`model` "": the server's default; otherwise an installed model; `voicemail`: transcribe voicemail messages; `live`: live transcription during calls, `live_model` "": the fastest installed; `live_server`: the live speech recogniser is installed, or `transcribe-live-url` is set; `live_running`: the domain's live model is loaded in the running live recogniser, started as soon as `live` is on; `live_error`: why it could not start) |
 | `GET /api/d/{domain}/phonekeys/{extension}`, `PUT ...` | Owners: an extension's phone keys, `{keys: [{type, value}], company, company_in_dialer, aux}`; types `blf`, `speed_dial`, `park` (value 1-5), `agent_status` (an aux code or Available), `change_status` (`IN`, `OUT`), `blank`. Stored in RingQ's `q_blfs` (one row set per extension, types and values as JSON lists; RingQ's type names are read too). `aux` is the list numbered for `*26N` (1 is Available) |
@@ -662,7 +662,7 @@ voicemail. A `user` extension can read `live`, `meta`, `directory`,
 | `GET /api/sounds`, `POST /api/sounds?path=prompts/name.wav` (body: a WAV or MP3 file), `DELETE /api/sounds?path=...`, `GET /api/sounds/file?path=...` | Prompts and music on hold (`music/<folder>/name.wav`); uploads are converted to 8 kHz mono |
 | `GET /api/logs?kind=&q=&limit=` | The event log (kinds: `agent`, `call`, `queue`, `registration`, `gateway`, `security`, `system`) |
 | `GET /api/system`, `POST /api/system/reload`, `POST /api/system/unblock` (`{"ip": "..."}`), `POST /api/system/repair` | System information (with `network`: SIP, RTP, web and browser-audio addresses and ports) and actions |
-| `GET /api/sipprofiles`, `POST /api/sipprofiles`, `PUT/DELETE /api/sipprofiles/{uuid}` | SIP profiles (`v_sip_profiles`): `{"name", "description", "enabled", "sip_ip", "port", "protocol": "udp,tcp" \| "udp", "ext_sip_ip"}`. The list adds `main`, `listening`, `bind_ip`, `advertise` and `error` (why a port could not open); the main port of `ringqswitch.xml` is listed with `from_config`. Saving opens or closes the port at once |
+| `GET /api/sipprofiles`, `POST /api/sipprofiles`, `PUT/DELETE /api/sipprofiles/{uuid}` | SIP profiles (`v_sip_profiles`): `{"name", "description", "enabled", "sip_ip", "port", "protocol": "udp,tcp" \| "udp", "ext_sip_ip"}`. The list adds `main`, `listening`, `bind_ip`, `advertise` and `error` (why a port could not open); the main port of `orswitch.xml` is listed with `from_config`. Saving opens or closes the port at once |
 | `POST /api/sipprofiles/defaults` | Adds RingQ's standard profiles that are missing: `internal` on the main SIP port and `external` on 5080. Answers `{"added": ["internal", "external"]}`. The list (`GET`) also says `database` and `in_database` (how many profiles the database has) |
 | `POST /api/cache/clear` | Owners: the top bar's reload button. Forgets the carriers' resolved addresses and compiled number patterns and reloads the configuration from the database at once (calls continue). Answers `{"domains", "extensions", "gateways", "dialplans", "took_ms"}` |
 | `GET /api/devices` | The phones and apps signed in (registered) as my extension: `[{"user", "domain", "contact", "source", "user_agent", "expires", "since"}]` (empty for the administrator account) |
@@ -688,7 +688,7 @@ voicemail. A `user` extension can read `live`, `meta`, `directory`,
 | `GET /api/d/{domain}/fax/jobs?direction=in\|out&status=&q=&limit=` | The faxes, newest first: `[{id, direction, from_number, to_number, pages, status, error_reason, call_uuid, created_at, updated_at, has_file}]` (times in epoch seconds; `status=active` = queued, dialing, sending or receiving) |
 | `POST /api/d/{domain}/fax/send?from=&to=&name=` | Body: the document (PDF, TIFF, PNG, JPEG or GIF, 20 MB). `from` must be one of `numbers`; `to` may list up to 20 numbers (commas). Answers `{jobs: [id...], pages}`; 400 when the document cannot be faxed (a PDF when the server has no PDF converter...) |
 | `GET /api/d/{domain}/fax/jobs/{id}/file[?download=1]`, `POST .../jobs/{id}/retry`, `DELETE .../jobs/{id}` | The fax received (PDF) or the document sent; send a failed fax again; delete a fax and its file (not while in progress) |
-| `GET /api/d/{domain}/fax/jobs/{id}/trace?side=heard\|sent` | The audio of a fax call (WAV, `fax-<call_uuid>-<side>.wav`), to find out why a fax failed: `heard` (default) is what came from the other machine, `sent` what RingQswitch sent |
+| `GET /api/d/{domain}/fax/jobs/{id}/trace?side=heard\|sent` | The audio of a fax call (WAV, `fax-<call_uuid>-<side>.wav`), to find out why a fax failed: `heard` (default) is what came from the other machine, `sent` what ORswitch sent |
 | `PUT /api/d/{domain}/fax/settings` | `{"fax_ident": "+65 6123 4567", "fax_header": "ACME PTE LTD"}` (empty = the company name) |
 | `GET /api/d/{domain}/hotel` | Owners and managers: the hotel front desk. `{rooms, occupied, vacant}`; each room is an enabled extension: `{extension, name, registered, status: "vacant" \| "occupied", guest: {stay_uuid, first_name, last_name, checked_in_at}, wakeup: {wakeup_uuid, call_at, status, attempts, last_result, sound}}` (`wakeup` is the planned call, else the latest of the last 18 hours) |
 | `POST /api/d/{domain}/hotel/checkin` | `{"extension": "1004", "first_name": "Sarah", "last_name": "Bennett"}` answers `{stay_uuid}`; 400 when the room is occupied |
@@ -724,7 +724,7 @@ friendly fields the interface translates:
 * Extensions: `voicemail_enabled`, `voicemail_password`, `voicemail_mail_to`;
   `web_role` (`""` = no web access, `user`, `manager`, `owner`), `web_password` (empty = keep) and `sso_email` (the
   single sign-on account of the extension, unique in the domain). Reading an
-  extension gives its `web_password` too (owners only): RingQswitch keeps an encrypted copy, with a key that stays on
+  extension gives its `web_password` too (owners only): ORswitch keeps an encrypted copy, with a key that stays on
   the server (`data-dir/web-passwords.key`); passwords set before 0.5.4 appear after the user's next sign-in;
   `agent_enabled` and `agent_call_timeout`, `agent_wrap_up_time`, `agent_max_no_answer`,
   `agent_no_answer_delay_time` (the extension's call-centre agent)
@@ -760,8 +760,8 @@ carry an `id`, which the reply repeats.
 | `phone.start` `{sdp, gen}` and `phone.ice`, then `phone.dial` `{number}`, `phone.answer`, `phone.hangup`, `phone.hold` `{call, on}`, `phone.mute`, `phone.dtmf` `{call, digits}`, `phone.transfer` `{call, target}`, `phone.attxfer` `{call, target}`, `phone.stats` (the audio check of the call being heard), `phone.stop` | `phone.dialing` `{call}` (the reply to `phone.dial`), `phone.sdp`, `phone.ice` and `phone.media` (carrying the `gen` of the `phone.start` they answer, so a browser that restarted ignores old ones), `phone.reg` (registered or not), `phone.call` (each call's state), `phone.mwi`, and the `phone.stats` reply: `via`, `connection`, `call`, `audio` (`from_browser`, `to_call`, `from_call`, `to_browser`, each `{packets, level, recent, loudest}` in dBFS since the answer; `seconds`; `problems`, plain-English), `rtp` (`local`, `remote`, `codec` of the call towards the switch) |
 | `meet.join` `{room}`, `meet.answer`, `meet.ice`, `meet.state` (mic, camera, screen, hand), `meet.chat` `{body}`, `meet.reaction` `{body}`, `meet.transcribe` `{on}`, `meet.caption` `{body, on}` (a line of your own speech; `on` = final), `meet.present` `{data: {file, page} \| {page} \| {stop}}`, `meet.board` `{on}`, `meet.draw` `{data: {c, w, p: [x, y, ...]}}` (0-10000), `meet.clear`, `meet.leave`; hosts: `meet.admit`, `meet.deny`, `meet.mute`, `meet.muteall`, `meet.remove` `{peer}`, `meet.lock` `{on}`, `meet.lobby` `{on}` (the waiting room), `meet.end` | `meet.joined` (`me`, `host`, `title`, `code`, `link`, `started`, `now`, `token`, `waiting`), `meet.waiting`, `meet.admitted` (with the chat, transcript, presentation and whiteboard so far), `meet.lobby`, `meet.offer`, `meet.ice`, `meet.peers` (`peers`, `locked`, `lobby`), `meet.media`, `meet.chat`, `meet.reaction`, `meet.transcribe`, `meet.caption` `{line, final}`, `meet.present`, `meet.board`, `meet.draw`, `meet.clear`, `meet.mute`, `meet.ended` |
 
-The dialer is a real SIP client inside RingQswitch: `phone.start` registers
-the signed-in extension (User-Agent "RingQswitch Web Dialer"), and the browser
+The dialer is a real SIP client inside ORswitch: `phone.start` registers
+the signed-in extension (User-Agent "ORswitch Web Dialer"), and the browser
 exchanges audio with it over WebRTC on UDP `webrtc-port` (default 8443), or,
 where UDP is blocked, over TCP on the web port itself (ICE-TCP, RFC 6544:
 the web port tells the two apart by the first byte). `phone.reg` and
@@ -774,7 +774,7 @@ without a session.
 
 ## 11. Network: listening sockets and outbound connections
 
-Every socket RingQswitch opens, from the code. Open in the firewall only the
+Every socket ORswitch opens, from the code. Open in the firewall only the
 rows marked **public**; the others stay on the server.
 
 ### Listening
@@ -787,9 +787,9 @@ rows marked **public**; the others stay on the server.
 | Web portal and JSON API | TCP (HTTPS; HTTP with `tls` = `off`) | `<web>` `listen` | off until set (installer: `0.0.0.0:8443`) | **Public** or behind a reverse proxy: browsers, your software |
 | Browser audio over TCP | TCP, on the web port itself | the web port tells HTTPS and ICE-TCP apart by the first byte; only when `listen` is not a loopback address | with the web port | **Public**: dialer and meetings where UDP is blocked |
 | Browser audio (dialer and meetings) | UDP (IPv4) | all addresses, `<web>` `webrtc-port` (0 = off) | 8443 | **Public**: browsers |
-| Event socket | TCP | `event-socket-listen` (empty = off) | `127.0.0.1:8021` | Local: `rq_cli`, the RingQ portal, your API server |
-| Live speech recogniser | TCP (HTTP) | `127.0.0.1`, a free port chosen at start; started only while a domain has live transcription on (or use `transcribe-live-url` for one elsewhere) | on demand | Local: RingQswitch itself |
-| Browser dialer's SIP client | UDP | `sip-ip` (or 127.0.0.1), free ports: one for SIP and one per call for RTP, towards the switch's own SIP port | per signed-in dialer | Local: RingQswitch itself |
+| Event socket | TCP | `event-socket-listen` (empty = off) | `127.0.0.1:8021` | Local: `or_cli`, the RingQ portal, your API server |
+| Live speech recogniser | TCP (HTTP) | `127.0.0.1`, a free port chosen at start; started only while a domain has live transcription on (or use `transcribe-live-url` for one elsewhere) | on demand | Local: ORswitch itself |
+| Browser dialer's SIP client | UDP | `sip-ip` (or 127.0.0.1), free ports: one for SIP and one per call for RTP, towards the switch's own SIP port | per signed-in dialer | Local: ORswitch itself |
 
 `GET /api/system` returns `network` with the SIP, RTP, web and browser-audio
 addresses and ports in use, and `GET /api/sipprofiles` says per profile

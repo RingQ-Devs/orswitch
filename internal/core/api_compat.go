@@ -39,7 +39,7 @@ func init() {
 		"global_setvar":     {"global_setvar <name>=<value>", "set a global variable", apiGlobalSetvar},
 		"fsctl":             {"fsctl send_sighup|shutdown ...", "core control (send_sighup reloads)", apiFsctl},
 		"shutdown":          {"shutdown [cancel|elegant|asap|now|restart]", "stop the switch (RingQ's startup.sh and service restart use it)", apiShutdown},
-		"module_exists":     {"module_exists <module>", "true for modules RingQswitch replaces", apiModuleExists},
+		"module_exists":     {"module_exists <module>", "true for modules ORswitch replaces", apiModuleExists},
 		"avmd":              {"avmd <uuid> start|stop [inbound|outbound]", "answering machine beep detection", apiAVMD},
 		"load":              {"load <module>", "accepted for compatibility", apiOK},
 		"reload":            {"reload <module>", "reload configuration", apiReloadModule},
@@ -48,7 +48,7 @@ func init() {
 		"hostname":          {"hostname", "switch hostname", apiHostname},
 		"switchname":        {"switchname", "switch name", apiHostname},
 		"domains":           {"domains", "list domains and their user counts", apiDomains},
-		"compat":            {"compat", "report dialplan applications and functions RingQswitch does not support", apiCompat},
+		"compat":            {"compat", "report dialplan applications and functions ORswitch does not support", apiCompat},
 	} {
 		apiCommands[name] = cmd
 	}
@@ -70,7 +70,7 @@ func init() {
 func apiOK(*Core, []string) (string, error) { return "+OK\n", nil }
 
 func apiNotSupported(*Core, []string) (string, error) {
-	return "", fmt.Errorf("not supported by RingQswitch yet")
+	return "", fmt.Errorf("not supported by ORswitch yet")
 }
 
 func apiMemcache(c *Core, args []string) (string, error) {
@@ -682,7 +682,7 @@ func (c *Core) sipStatusXML() string {
 }
 
 // ---------------------------------------------------------------------------
-// compat: what the loaded dialplan uses that RingQswitch lacks
+// compat: what the loaded dialplan uses that ORswitch lacks
 
 func apiCompat(c *Core, _ []string) (string, error) {
 	return c.CompatReport(), nil

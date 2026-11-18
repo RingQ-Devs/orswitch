@@ -1,5 +1,5 @@
 [Unit]
-Description=RingQswitch PBX
+Description=ORswitch PBX
 After=network-online.target postgresql.service
 Wants=network-online.target
 
@@ -7,20 +7,20 @@ Wants=network-online.target
 Type=simple
 User=ringq
 Group=ringq
-ExecStartPre=/usr/local/bin/ringqswitch -conf /etc/ringqswitch -check
-ExecStart=/usr/local/bin/ringqswitch -conf /etc/ringqswitch
+ExecStartPre=/usr/local/bin/orswitch -conf /etc/orswitch -check
+ExecStart=/usr/local/bin/orswitch -conf /etc/orswitch
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=on-failure
 RestartSec=2
 LimitNOFILE=65536
 # packaging/install.sh rewrites the sample's relative paths (../log,
-# ../recordings, ../sounds) to /var/lib/ringqswitch, the only writable path.
-WorkingDirectory=/var/lib/ringqswitch
+# ../recordings, ../sounds) to /var/lib/orswitch, the only writable path.
+WorkingDirectory=/var/lib/orswitch
 NoNewPrivileges=true
 ProtectSystem=full
 ProtectHome=true
 PrivateTmp=true
-ReadWritePaths=/var/lib/ringqswitch
+ReadWritePaths=/var/lib/orswitch
 
 [Install]
 WantedBy=multi-user.target

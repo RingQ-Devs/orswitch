@@ -247,7 +247,7 @@ func (s *Server) saveWebAccess(ctx context.Context, tx pgx.Tx, dom domainRow, ro
 }
 
 // SetWebAccess gives an extension web access with a role and password
-// (ringqswitch -web-access 1000@domain, for scripts).
+// (orswitch -web-access 1000@domain, for scripts).
 func SetWebAccess(ctx context.Context, st *db.Store, ext, domain, role, password string) error {
 	if role != RoleOwner && role != RoleManager && role != RoleUser {
 		return fmt.Errorf("role: owner, manager or user")

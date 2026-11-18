@@ -1,5 +1,5 @@
 'use strict';
-// RingQswitch web interface. Plain JavaScript, no build step. Every value
+// ORswitch web interface. Plain JavaScript, no build step. Every value
 // from the server is inserted as text (never as HTML).
 
 // ---------------------------------------------------------------------------

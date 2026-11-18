@@ -9,7 +9,7 @@ import (
 	"github.com/ringq-devs/orswitch/internal/config"
 )
 
-// SIP profiles: the main port of ringqswitch.xml plus one more port per
+// SIP profiles: the main port of orswitch.xml plus one more port per
 // enabled profile in the database (the RingQ portal's "external" on 5080...).
 // Requests that arrive on a profile's port are answered from it, and
 // gateways of that profile send from it. Every profile advertises this
@@ -27,7 +27,7 @@ type ProfileStatus struct {
 	TCP         bool   `json:"tcp"`        // as configured
 	ExtSIPIP    string `json:"ext_sip_ip"` // as configured
 	TLS         bool   `json:"tls"`
-	Main        bool   `json:"main"` // the port of ringqswitch.xml
+	Main        bool   `json:"main"` // the port of orswitch.xml
 	Listening   bool   `json:"listening"`
 	BindIP      string `json:"bind_ip"`   // where it listens ("" = all addresses)
 	Advertise   string `json:"advertise"` // the address it gives out

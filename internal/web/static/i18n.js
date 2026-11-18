@@ -60,7 +60,7 @@ const I18N = (() => {
     "Search": ["بحث", "Rechercher", "Buscar", "Pesquisar", "Suchen", "搜索", "検索", "검색", "Tìm kiếm", "Cari", "தேடு", "खोजें"],
     "Meetings calendar": ["تقويم الاجتماعات", "Calendrier des réunions", "Calendario de reuniones", "Calendário de reuniões", "Besprechungskalender", "会议日历", "会議カレンダー", "회의 일정", "Lịch họp", "Kalendar mesyuarat", "கூட்ட நாட்காட்டி", "मीटिंग कैलेंडर"],
     "Meet": ["اجتماع", "Réunion", "Reunión", "Reunião", "Meeting", "会议", "ミーティング", "미팅", "Họp", "Mesyuarat", "சந்திப்பு", "मीट"],
-    "Clear the RingQswitch cache": ["مسح ذاكرة RingQswitch المؤقتة", "Vider le cache de RingQswitch", "Borrar la caché de RingQswitch", "Limpar o cache do RingQswitch", "RingQswitch-Cache leeren", "清除 RingQswitch 缓存", "RingQswitch のキャッシュをクリア", "RingQswitch 캐시 지우기", "Xóa bộ nhớ đệm RingQswitch", "Kosongkan cache RingQswitch", "RingQswitch தற்காலிக நினைவகத்தை அழி", "RingQswitch कैश साफ़ करें"],
+    "Clear the ORswitch cache": ["مسح ذاكرة ORswitch المؤقتة", "Vider le cache de ORswitch", "Borrar la caché de ORswitch", "Limpar o cache do ORswitch", "ORswitch-Cache leeren", "清除 ORswitch 缓存", "ORswitch のキャッシュをクリア", "ORswitch 캐시 지우기", "Xóa bộ nhớ đệm ORswitch", "Kosongkan cache ORswitch", "ORswitch தற்காலிக நினைவகத்தை அழி", "ORswitch कैश साफ़ करें"],
     "Language": ["اللغة", "Langue", "Idioma", "Idioma", "Sprache", "语言", "言語", "언어", "Ngôn ngữ", "Bahasa", "மொழி", "भाषा"],
     "Dark mode": ["الوضع الداكن", "Mode sombre", "Modo oscuro", "Modo escuro", "Dunkelmodus", "深色模式", "ダークモード", "다크 모드", "Chế độ tối", "Mod gelap", "இருண்ட பயன்முறை", "डार्क मोड"],
     "Light mode": ["الوضع الفاتح", "Mode clair", "Modo claro", "Modo claro", "Hellmodus", "浅色模式", "ライトモード", "라이트 모드", "Chế độ sáng", "Mod cerah", "ஒளி பயன்முறை", "लाइट मोड"],

@@ -21,7 +21,7 @@ import (
 	"github.com/ringq-devs/orswitch/internal/media"
 )
 
-// uuid_openai_audio_stream: RingQswitch's own version of the FreeSWITCH module
+// uuid_openai_audio_stream: ORswitch's own version of the FreeSWITCH module
 // mod_openai_audio_stream (a fork of mod_audio_stream that talks to the OpenAI
 // Realtime API). The RingQ AI dialplans (AI IVR, AI agent extensions) call it:
 //

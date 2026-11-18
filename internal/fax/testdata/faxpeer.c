@@ -1,6 +1,6 @@
 /*
- * faxpeer: a spandsp fax terminal for RingQswitch's fax tests (not part
- * of RingQswitch itself). It reads 8 kHz 16-bit audio from stdin and
+ * faxpeer: a spandsp fax terminal for ORswitch's fax tests (not part
+ * of ORswitch itself). It reads 8 kHz 16-bit audio from stdin and
  * writes as much to stdout, 160 samples at a time, so a test drives it
  * sample-exactly, as if it were the far end of a G.711 call.
  *
@@ -16,7 +16,7 @@
  * datagrams of that time, each as a 2-byte little-endian length and the
  * bytes, then a zero length; faxpeer answers the same way. The UDPTL
  * framing (with redundancy) is written here, independently of
- * RingQswitch's. FAXPEER_T38_VERSION (default 0), FAXPEER_REDUNDANCY
+ * ORswitch's. FAXPEER_T38_VERSION (default 0), FAXPEER_REDUNDANCY
  * (previous packets repeated in each datagram, default 3), FAXPEER_DROP=n
  * (drop every n-th datagram both ways, to exercise the recovery).
  *

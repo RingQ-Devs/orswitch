@@ -291,7 +291,7 @@ func (s *Store) loadVars(ctx context.Context, cfg *config.Config) error {
 			continue // exec-set and stun-set run programs: not supported
 		}
 		if _, defined := cfg.Vars[name]; defined && !added[name] {
-			continue // ringqswitch.xml wins
+			continue // orswitch.xml wins
 		}
 		cfg.Vars[name] = r["var_value"]
 		added[name] = true

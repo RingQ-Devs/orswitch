@@ -1,19 +1,19 @@
 'use strict';
-// Replays RingQswitch's events through RingQ Core's real node services, offline.
+// Replays ORswitch's events through RingQ Core's real node services, offline.
 //
 // Loads /var/www/ringq/node/server.js (and optionally queue.js) unmodified, in this one process, with
 // every outside connection redirected or faked:
-//   modesl            real library, connected to the test switch's event socket (RQ_ESL_PORT / RQ_ESL_PASS)
-//   redis             real library, private Redis (RQ_SBX/redis.sock)
-//   pg                real library, private PostgreSQL copy (RQ_SBX socket), user postgres
+//   modesl            real library, connected to the test switch's event socket (OR_ESL_PORT / OR_ESL_PASS)
+//   redis             real library, private Redis (OR_SBX/redis.sock)
+//   pg                real library, private PostgreSQL copy (OR_SBX socket), user postgres
 //   socket.io-client  fake: every emit is recorded; emits to the queue service (port 4072) are handed to
-//                     queue.js's handlers when queue.js is loaded (RQ_TARGETS=server.js,queue.js)
+//                     queue.js's handlers when queue.js is loaded (OR_TARGETS=server.js,queue.js)
 //   socket.io (Server) fake (no port is opened)
 //   firebase-admin, node-cron, ffmpeg, ws, ./secret.json, ./turnCredentials, dotenv: stubs
 // Any other network connection and any child process is refused. It never touches the live services.
 //
 // Control: prints "HARNESS READY" when the event socket is connected; reads "dump" on stdin, writes the
-// recorded socket.io emits to RQ_OUT and exits.
+// recorded socket.io emits to OR_OUT and exits.
 
 const Module = require('module');
 const path = require('path');
@@ -22,14 +22,14 @@ const net = require('net');
 const cp = require('child_process');
 const { EventEmitter } = require('events');
 
-const NODE_DIR = process.env.RQ_NODE_DIR || '/var/www/ringq/node';
-const SBX = process.env.RQ_SBX || '/tmp/rq_reports_sbx';
-const ESL_PORT = Number(process.env.RQ_ESL_PORT);
-const ESL_PASS = process.env.RQ_ESL_PASS || 'ClueCon';
-const OUT = process.env.RQ_OUT || '/tmp/rq_harness_out.json';
-const TARGETS = (process.env.RQ_TARGETS || 'server.js').split(',').filter(Boolean);
+const NODE_DIR = process.env.OR_NODE_DIR || '/var/www/ringq/node';
+const SBX = process.env.OR_SBX || '/tmp/rq_reports_sbx';
+const ESL_PORT = Number(process.env.OR_ESL_PORT);
+const ESL_PASS = process.env.OR_ESL_PASS || 'ClueCon';
+const OUT = process.env.OR_OUT || '/tmp/rq_harness_out.json';
+const TARGETS = (process.env.OR_TARGETS || 'server.js').split(',').filter(Boolean);
 
-if (!ESL_PORT) { console.error('RQ_ESL_PORT is required'); process.exit(2); }
+if (!ESL_PORT) { console.error('OR_ESL_PORT is required'); process.exit(2); }
 
 const real = (m) => require(path.join(NODE_DIR, 'node_modules', m));
 const emits = [];
@@ -92,8 +92,8 @@ class FakeServer extends EventEmitter {
   }
 }
 
-// RQ_TRACE_KEYS=regex: log reads and writes of matching Redis keys with a time stamp (ordering problems)
-const TRACE = process.env.RQ_TRACE_KEYS ? new RegExp(process.env.RQ_TRACE_KEYS) : null;
+// OR_TRACE_KEYS=regex: log reads and writes of matching Redis keys with a time stamp (ordering problems)
+const TRACE = process.env.OR_TRACE_KEYS ? new RegExp(process.env.OR_TRACE_KEYS) : null;
 function traceRedis(c) {
   if (!TRACE) return c;
   for (const m of ['get', 'set', 'del']) {
@@ -173,7 +173,7 @@ for (const t of TARGETS) {
 }
 
 // ready: poll until the ESL connection answers
-setTimeout(() => console.log('HARNESS READY'), Number(process.env.RQ_READY_MS || 2500));
+setTimeout(() => console.log('HARNESS READY'), Number(process.env.OR_READY_MS || 2500));
 
 function dump() {
   fs.writeFileSync(OUT, JSON.stringify({ emits, dbWrites }, null, 1));

@@ -1,6 +1,6 @@
-# RingQswitch
+# ORswitch
 
-**RingQswitch** is the telephony switch of the RingQ platform: a complete
+**ORswitch** is the telephony switch of the RingQ platform: a complete
 software PBX and contact-centre engine in a single program. It handles SIP
 phones and trunks, routes and records calls, runs queues, IVR menus,
 voicemail, conferences and fax, and ships with its own web portal: call flow
@@ -38,7 +38,7 @@ and is managed entirely from the browser.
 
 ## 1. Highlights
 
-- **One self-contained program.** `ringqswitch` is a single static binary
+- **One self-contained program.** `orswitch` is a single static binary
   (no runtime libraries, no external services needed to make calls). The
   web portal, its fonts, icons and voice prompts are built in.
 - **Multi-tenant.** Every company is a domain with its own extensions,
@@ -56,7 +56,7 @@ and is managed entirely from the browser.
   protections that ban attackers automatically, country restrictions and PIN
   dialing against toll fraud, address rules for SIP and the web portal,
   HTTPS everywhere.
-- **Open control.** An event socket and console (`rq_cli`) for live control,
+- **Open control.** An event socket and console (`or_cli`) for live control,
   monitoring and integration with other RingQ services.
 
 ---
@@ -66,14 +66,14 @@ and is managed entirely from the browser.
 ### 2.1 System overview
 
 ```
-                        ┌──────────────────────────────── RingQswitch (one process) ─────────────────────────────────┐
+                        ┌──────────────────────────────── ORswitch (one process) ─────────────────────────────────┐
  SIP phones    ◄─SIP─►  │ SIP stack (UDP/TCP, SIP profiles) ─► transactions ─► CORE ─► dialplan engine               │
  SIP trunks    ◄─SIP─►  │ gateways (registration, authentication)                      └─► applications              │
  RTP audio     ◄─RTP─►  │ media engine (relay, play, record, mix, DTMF, fax)               (bridge, IVR, queue,      │
                         │ registrar · call centre · presence/BLF · voicemail               voicemail, conference,    │
                         │ conferences · SIP Guard · office hours · rules                   fax, record, AI ...)      │
                         │                                                                                            │
-                        │ event bus ─┬─► event socket (port 8021) ─► rq_cli, integrations                            │
+                        │ event bus ─┬─► event socket (port 8021) ─► or_cli, integrations                            │
                         │            ├─► database writer                                                             │
                         │            └─► live feeds for the portal                                                   │
                         │                                                                                            │
@@ -117,12 +117,12 @@ database or the web portal.
 | `internal/transcribe` | Call transcription: audio preparation, voice activity detection, speaker turns, speech recogniser driver, live transcription, sentiment analysis |
 | `internal/logbus` | Live log stream for the console and the portal |
 | `internal/testua` | Scriptable SIP phone used by the automated tests |
-| `cmd/ringqswitch` | The daemon: flags, signals, reload, logging, database and web start-up |
-| `cmd/rq_cli` | The console |
+| `cmd/orswitch` | The daemon: flags, signals, reload, logging, database and web start-up |
+| `cmd/or_cli` | The console |
 
 ### 2.3 Configuration sources and reload
 
-- **XML mode** (no database): `conf/ringqswitch.xml` plus
+- **XML mode** (no database): `conf/orswitch.xml` plus
   `conf/directory/*.xml` (users) and `conf/dialplan/*.xml` (contexts).
 - **Database mode** (`<database>` with a `dsn`): the XML settings stay (ports,
   paths, security defaults), and domains, users, gateways, SIP profiles,
@@ -256,7 +256,7 @@ gateway, and places the outbound leg; the first leg to answer wins.
 
 ### 3.4 Web portal modules
 
-The portal is served over HTTPS by RingQswitch itself (default port 8443).
+The portal is served over HTTPS by ORswitch itself (default port 8443).
 Sign in as the administrator or as an extension with a web password; roles
 **Owner**, **Manager** and **User** are set on the User roles board.
 
@@ -412,8 +412,8 @@ Every listening socket and every outbound connection is listed in
 ### 5.1 Quick build
 
 ```bash
-tar xzf ringqswitch-0.10.1-src.tar.gz
-cd ringqswitch-0.10.1
+tar xzf orswitch-0.10.1-src.tar.gz
+cd orswitch-0.10.1
 make build
 ```
 
@@ -421,23 +421,23 @@ This creates:
 
 | File | What it is |
 |---|---|
-| `bin/ringqswitch` | The switch (daemon) with the portal built in |
-| `bin/rq_cli` | The console |
+| `bin/orswitch` | The switch (daemon) with the portal built in |
+| `bin/or_cli` | The console |
 
 Check the result:
 
 ```bash
-bin/ringqswitch -version          # RingQswitch 0.10.1
-bin/ringqswitch -conf conf -check # validate the configuration
+bin/orswitch -version          # ORswitch 0.10.1
+bin/orswitch -conf conf -check # validate the configuration
 ```
 
 ### 5.2 What `make build` does
 
 ```bash
 go build -ldflags "-s -w -X github.com/ringq-devs/orswitch/internal/core.Version=0.10.1" \
-  -o bin/ringqswitch ./cmd/ringqswitch
+  -o bin/orswitch ./cmd/orswitch
 go build -ldflags "-s -w -X github.com/ringq-devs/orswitch/internal/core.Version=0.10.1" \
-  -o bin/rq_cli ./cmd/rq_cli
+  -o bin/or_cli ./cmd/or_cli
 ```
 
 - `-s -w` strips debug symbols (smaller binaries).
@@ -459,10 +459,10 @@ GOFLAGS=-mod=vendor GOPROXY=off make build
 The build is pure Go, so cross-compiling needs no extra tools:
 
 ```bash
-CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "-s -w" -o bin/linux-amd64/ringqswitch ./cmd/ringqswitch
-CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "-s -w" -o bin/linux-amd64/rq_cli ./cmd/rq_cli
-CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -ldflags "-s -w" -o bin/linux-arm64/ringqswitch ./cmd/ringqswitch
-CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -ldflags "-s -w" -o bin/linux-arm64/rq_cli ./cmd/rq_cli
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "-s -w" -o bin/linux-amd64/orswitch ./cmd/orswitch
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags "-s -w" -o bin/linux-amd64/or_cli ./cmd/or_cli
+CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -ldflags "-s -w" -o bin/linux-arm64/orswitch ./cmd/orswitch
+CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -trimpath -ldflags "-s -w" -o bin/linux-arm64/or_cli ./cmd/or_cli
 ```
 
 Add `-X github.com/ringq-devs/orswitch/internal/core.Version=<version>`
@@ -472,7 +472,7 @@ to `-ldflags` to stamp the version.
 
 | Target | What it does |
 |---|---|
-| `make build` | Build `bin/ringqswitch` and `bin/rq_cli` |
+| `make build` | Build `bin/orswitch` and `bin/or_cli` |
 | `make run` | Build and run with `conf/` |
 | `make install` | Build and install on this server (`packaging/install.sh`, needs root) |
 | `make test` | Unit and end-to-end tests |
@@ -480,7 +480,7 @@ to `-ldflags` to stamp the version.
 | `make test-db RINGQ_TEST_DSN=...` | Database integration tests in a throw-away schema |
 | `make vet` | Formatting check and static analysis |
 | `make interop` | Interoperability tests with an independent SIP traffic generator (`test/interop/`) |
-| `make container` | Container image `ringqswitch:<version>` (from `Containerfile`) |
+| `make container` | Container image `orswitch:<version>` (from `Containerfile`) |
 | `make clean` | Remove `bin/` |
 
 ### 5.6 Changing the portal
@@ -498,8 +498,8 @@ Each release ships two archives:
 
 | Archive | Contents |
 |---|---|
-| `ringqswitch-<version>-src.tar.gz` | Full source, vendored dependencies, sample configuration, tests, documentation |
-| `ringqswitch-<version>-linux-bin.tar.gz` | Static binaries for `amd64` and `arm64`, configuration, documentation, installer, third-party notices and licenses (no Go needed) |
+| `orswitch-<version>-src.tar.gz` | Full source, vendored dependencies, sample configuration, tests, documentation |
+| `orswitch-<version>-linux-bin.tar.gz` | Static binaries for `amd64` and `arm64`, configuration, documentation, installer, third-party notices and licenses (no Go needed) |
 
 How they are made (from a clean checkout of the release commit):
 
@@ -507,17 +507,17 @@ How they are made (from a clean checkout of the release commit):
 V=0.10.1
 
 # Source package: exactly the committed tree.
-git archive --format=tar.gz --prefix=ringqswitch-$V/ -o ringqswitch-$V-src.tar.gz HEAD
+git archive --format=tar.gz --prefix=orswitch-$V/ -o orswitch-$V-src.tar.gz HEAD
 
 # Check that it builds offline.
-tar xzf ringqswitch-$V-src.tar.gz -C /tmp
-(cd /tmp/ringqswitch-$V && GOFLAGS=-mod=vendor GOPROXY=off make build && bin/ringqswitch -version)
+tar xzf orswitch-$V-src.tar.gz -C /tmp
+(cd /tmp/orswitch-$V && GOFLAGS=-mod=vendor GOPROXY=off make build && bin/orswitch -version)
 
 # Binary package.
-B=pkg/ringqswitch-$V-linux
+B=pkg/orswitch-$V-linux
 mkdir -p $B/bin/linux-amd64 $B/bin/linux-arm64 $B/sounds $B/licenses
 for arch in amd64 arm64; do
-  for p in ringqswitch rq_cli; do
+  for p in orswitch or_cli; do
     CGO_ENABLED=0 GOOS=linux GOARCH=$arch go build -trimpath \
       -ldflags "-s -w -X github.com/ringq-devs/orswitch/internal/core.Version=$V" \
       -o $B/bin/linux-$arch/$p ./cmd/$p
@@ -526,7 +526,7 @@ done
 cp -r conf docs packaging INSTALL.md README.md THIRD-PARTY-NOTICES.md $B/
 cp sounds/README.md $B/sounds/
 (cd vendor && find . -name 'LICENSE*' -exec cp --parents {} ../$B/licenses/ \;)
-tar czf ringqswitch-$V-linux-bin.tar.gz -C pkg ringqswitch-$V-linux
+tar czf orswitch-$V-linux-bin.tar.gz -C pkg orswitch-$V-linux
 ```
 
 The installer (`packaging/install.sh`) picks `bin/` or `bin/linux-<arch>/`
@@ -540,20 +540,20 @@ automatically.
 
 ```bash
 cd /opt
-tar xzf /root/ringqswitch-0.10.1-src.tar.gz
-cd /opt/ringqswitch-0.10.1
+tar xzf /root/orswitch-0.10.1-src.tar.gz
+cd /opt/orswitch-0.10.1
 make build
 sudo make install
-sudo systemctl enable --now ringqswitch
+sudo systemctl enable --now orswitch
 ```
 
 ### 7.2 Install from the binary package
 
 ```bash
-tar xzf ringqswitch-0.10.1-linux-bin.tar.gz
-cd ringqswitch-0.10.1-linux
+tar xzf orswitch-0.10.1-linux-bin.tar.gz
+cd orswitch-0.10.1-linux
 sudo bash packaging/install.sh
-sudo systemctl enable --now ringqswitch
+sudo systemctl enable --now orswitch
 ```
 
 ### 7.3 What the installer does
@@ -561,25 +561,25 @@ sudo systemctl enable --now ringqswitch
 | Step | Result |
 |---|---|
 | Service user | Creates the system user `ringq` (no login shell) |
-| Programs | `/usr/local/bin/ringqswitch`, `/usr/local/bin/rq_cli`, helper scripts in `/usr/local/share/ringqswitch/` |
-| Configuration | `/etc/ringqswitch/` (copied from `conf/` on the first install; **kept** on upgrades) |
-| Data | `/var/lib/ringqswitch/` (logs, recordings, voicemail, sounds, fax, certificates, speech models) |
-| Service | `/etc/systemd/system/ringqswitch.service`, running as `ringq` with a hardened sandbox (only `/var/lib/ringqswitch` writable) |
+| Programs | `/usr/local/bin/orswitch`, `/usr/local/bin/or_cli`, helper scripts in `/usr/local/share/orswitch/` |
+| Configuration | `/etc/orswitch/` (copied from `conf/` on the first install; **kept** on upgrades) |
+| Data | `/var/lib/orswitch/` (logs, recordings, voicemail, sounds, fax, certificates, speech models) |
+| Service | `/etc/systemd/system/orswitch.service`, running as `ringq` with a hardened sandbox (only `/var/lib/orswitch` writable) |
 | Check | Validates the configuration before finishing |
 
 ### 7.4 Upgrading
 
 Build or unpack the new version and run the installer again; the
-configuration in `/etc/ringqswitch` is kept and missing database tables are
+configuration in `/etc/orswitch` is kept and missing database tables are
 added at start:
 
 ```bash
 cd /opt
-tar xzf /root/ringqswitch-<version>-src.tar.gz
-cd /opt/ringqswitch-<version>
+tar xzf /root/orswitch-<version>-src.tar.gz
+cd /opt/orswitch-<version>
 make build
 sudo make install
-sudo systemctl restart ringqswitch
+sudo systemctl restart orswitch
 ```
 
 Then reload the portal in the browser once (Ctrl+F5).
@@ -589,8 +589,8 @@ Then reload the portal in the browser once (Ctrl+F5).
 | Task | Command |
 |---|---|
 | A test database with sample data (extensions 1000–1004, a ring group, an IVR, feature codes, AUX codes), the portal switched on | `sudo bash packaging/setup-test-db.sh` |
-| Add RingQswitch's tables, default dialplans and AUX codes to an existing RingQ database | `sudo -u ringq ringqswitch -conf /etc/ringqswitch -init-db` |
-| Give an extension portal access | `sudo -u ringq RQ_WEB_PASSWORD='...' ringqswitch -conf /etc/ringqswitch -web-access 1001@example.com -role owner` |
+| Add ORswitch's tables, default dialplans and AUX codes to an existing RingQ database | `sudo -u ringq orswitch -conf /etc/orswitch -init-db` |
+| Give an extension portal access | `sudo -u ringq OR_WEB_PASSWORD='...' orswitch -conf /etc/orswitch -web-access 1001@example.com -role owner` |
 | Use your own HTTPS certificate (ACME certificate, renewed automatically) | the certificate helper in `packaging/` (see `INSTALL.md`) |
 | Install the speech recogniser for call transcription (builds it from source and installs the build tools it needs; about 5 minutes) | `sudo bash packaging/install-transcription.sh` |
 
@@ -601,10 +601,10 @@ Then reload the portal in the browser once (Ctrl+F5).
 ### 8.1 Files
 
 ```
-/etc/ringqswitch/ringqswitch.xml        core settings, global variables, gateways, ACLs, database, web
-/etc/ringqswitch/directory/*.xml        users (XML mode)
-/etc/ringqswitch/dialplan/*.xml         dialplan contexts (XML mode): "default" for extensions, "public" for trunks
-/etc/ringqswitch/examples/ringq-postgres.xml   a complete configuration for a RingQ database
+/etc/orswitch/orswitch.xml        core settings, global variables, gateways, ACLs, database, web
+/etc/orswitch/directory/*.xml        users (XML mode)
+/etc/orswitch/dialplan/*.xml         dialplan contexts (XML mode): "default" for extensions, "public" for trunks
+/etc/orswitch/examples/ringq-postgres.xml   a complete configuration for a RingQ database
 ```
 
 In the source tree these are under `conf/`. `$${name}` refers to a global
@@ -638,8 +638,8 @@ variable defined in `<vars>`.
 | `poll-seconds` | 15 | How often configuration changes are checked |
 | `write-registrations`, `write-channels`, `write-cdr` | true | What is written back |
 | `default-domain` | empty | Domain for phones that register with the server's IP address |
-| `manage-schema` | true | Create RingQswitch's tables when missing |
-| `grant-to` | empty | Other database users allowed to use RingQswitch's tables |
+| `manage-schema` | true | Create ORswitch's tables when missing |
+| `grant-to` | empty | Other database users allowed to use ORswitch's tables |
 
 ### 8.4 Web portal (`<web>`)
 
@@ -653,8 +653,8 @@ variable defined in `<vars>`.
 | `sip-tls-port` | 0 (off) | TLS port for SIP over TLS (desk phones, trunks), usually 5061. Uses the portal certificate; gateways can use `transport=tls` |
 | `public-ip` | ext-rtp-ip | Address browsers reach for audio |
 | `owner-server-access` | true | Let company owners use the server-wide pages; turn off when several companies share a server |
-| `brand` | RingQswitch | Product name shown in the portal |
-| `data-dir` | /var/lib/ringqswitch | Certificates, keys, speech models |
+| `brand` | ORswitch | Product name shown in the portal |
+| `data-dir` | /var/lib/orswitch | Certificates, keys, speech models |
 
 ### 8.5 XML examples
 
@@ -672,7 +672,7 @@ A dialplan extension:
 A trunk and an outbound route:
 
 ```xml
-<!-- ringqswitch.xml -->
+<!-- orswitch.xml -->
 <gateway name="carrier">
   <param name="proxy" value="sip.carrier.example"/>
   <param name="username" value="account"/>
@@ -696,49 +696,49 @@ rules) and stored in the RingQ database.
 ### 9.1 Service
 
 ```bash
-sudo systemctl status ringqswitch
-sudo systemctl restart ringqswitch
-sudo systemctl reload ringqswitch        # reload the configuration (SIGHUP)
-sudo journalctl -u ringqswitch -f        # follow the log
+sudo systemctl status orswitch
+sudo systemctl restart orswitch
+sudo systemctl reload orswitch        # reload the configuration (SIGHUP)
+sudo journalctl -u orswitch -f        # follow the log
 ```
 
 Daemon flags:
 
 | Flag | Meaning |
 |---|---|
-| `-conf DIR` | Configuration directory (default `/etc/ringqswitch`) |
+| `-conf DIR` | Configuration directory (default `/etc/orswitch`) |
 | `-check` | Validate the configuration (and database) and exit |
 | `-compat` | Report dialplan applications and functions that are not supported, and exit |
-| `-init-db` | Add RingQswitch's tables, default dialplans and AUX codes, and exit |
-| `-web-access ext@domain [-role owner\|manager\|user]` | Give an extension portal access (password in `RQ_WEB_PASSWORD`), and exit |
+| `-init-db` | Add ORswitch's tables, default dialplans and AUX codes, and exit |
+| `-web-access ext@domain [-role owner\|manager\|user]` | Give an extension portal access (password in `OR_WEB_PASSWORD`), and exit |
 | `-log-level LEVEL` | Override the log level |
 | `-version` | Print the version |
 
 ### 9.2 Console
 
 ```bash
-sudo rq_cli                          # live coloured log and a command prompt
-ringqswitch@host> status
-ringqswitch@host> show registrations
-ringqswitch@host> show channels
-ringqswitch@host> originate user/1000 9197     # ring 1000 and connect it to a test tone
-ringqswitch@host> uuid_kill <uuid>
-ringqswitch@host> reloadxml
-ringqswitch@host> blocked                      # SIP Guard bans
-ringqswitch@host> unblock 203.0.113.7
-ringqswitch@host> /log info                    # less detail (/log debug, /nolog)
-ringqswitch@host> /events plain ALL            # the event stream too
+sudo or_cli                          # live coloured log and a command prompt
+orswitch@host> status
+orswitch@host> show registrations
+orswitch@host> show channels
+orswitch@host> originate user/1000 9197     # ring 1000 and connect it to a test tone
+orswitch@host> uuid_kill <uuid>
+orswitch@host> reloadxml
+orswitch@host> blocked                      # SIP Guard bans
+orswitch@host> unblock 203.0.113.7
+orswitch@host> /log info                    # less detail (/log debug, /nolog)
+orswitch@host> /events plain ALL            # the event stream too
 ```
 
-`rq_cli` reads the event socket address and password from
-`/etc/ringqswitch/ringqswitch.xml` (run it as root). `rq_cli -x "show calls"`
+`or_cli` reads the event socket address and password from
+`/etc/orswitch/orswitch.xml` (run it as root). `or_cli -x "show calls"`
 runs one command and exits; `-H`, `-P`, `-p` and `-conf` connect to another
 server.
 
 ### 9.3 Quick test (XML mode)
 
 Point two SIP phones at the server with extensions `1000` and `1001` and the
-`default_password` from `ringqswitch.xml`, then dial:
+`default_password` from `orswitch.xml`, then dial:
 
 | Dial | Result |
 |---|---|
@@ -785,8 +785,8 @@ RINGQ_TEST_DSN='postgres://...' go test ./internal/web/    # portal API tests ag
 
 ```
 cmd/
-  ringqswitch/        the daemon
-  rq_cli/             the console
+  orswitch/        the daemon
+  or_cli/             the console
 internal/
   sip/ sdp/ media/    protocol and media layers
   dialplan/ config/   dialplan engine and configuration model

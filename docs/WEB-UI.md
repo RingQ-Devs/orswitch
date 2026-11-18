@@ -1,16 +1,16 @@
-# RingQswitch web interface: plain-English guide
+# ORswitch web interface: plain-English guide
 
 The web interface lets you run the phone system from a browser: gateways
 (SIP trunks), DIDs (your phone numbers), extensions, queues, IVR menus and
 reports.
 
 Version 0.10.1 is a documentation and branding release: every guide,
-sample file, script and portal text names only RingQswitch; the API
+sample file, script and portal text names only ORswitch; the API
 reference lists every command, event and WebSocket message, and every port
-RingQswitch listens on (docs/API.md, section 11). The speech recogniser is
+ORswitch listens on (docs/API.md, section 11). The speech recogniser is
 installed as `rq-speech` and `rq-speech-server` (installs from earlier
 versions keep working; run the install script again to rename them), the
-AI service key can be set as `RQ_AI_API_KEY`, the interoperability tests are
+AI service key can be set as `OR_AI_API_KEY`, the interoperability tests are
 in `test/interop/` (`make interop`), and the certificate helper is
 `packaging/use-certificate.sh`.
 
@@ -245,7 +245,7 @@ Version 0.6.1 added:
 Version 0.6.0 added:
 
 - **Call transcription with sentiment** (Settings → **Call
-  transcription**): after each call, RingQswitch writes down who said what
+  transcription**): after each call, ORswitch writes down who said what
   (**Speaker A**, the caller; **Speaker B**, who answered) and how they
   felt: each line, each speaker and the whole call are marked Positive,
   Neutral or Negative, and on calls through a trunk the outside party is
@@ -280,8 +280,8 @@ Version 0.5.13 added:
 
 - **T.38 fax**: when the carrier switches a fax call to T.38 (its fax
   gateway re-INVITEs, typically 2-3 seconds into the call when it hears
-  the fax tones), RingQswitch accepts and the fax goes on over T.38
-  (UDPTL, on the call's media port). Before, RingQswitch refused, and some
+  the fax tones), ORswitch accepts and the fax goes on over T.38
+  (UDPTL, on the call's media port). Before, ORswitch refused, and some
   carriers then stopped the call's audio until they hung up 32 seconds
   later ("The call dropped prematurely"). `fax_enable_t38=false` on a call
   keeps the fax as audio. Section 12C.
@@ -289,11 +289,11 @@ Version 0.5.13 added:
   another** (RFC 3261 18.2.2): a reply goes to the port in the request's
   Via header, unless the sender asked for `rport` or is behind NAT. Before,
   such a carrier never received the answer to its re-INVITE.
-- **RingQswitch names**: calls show as `ringq/gateway/<trunk>/<number>`,
+- **ORswitch names**: calls show as `ringq/gateway/<trunk>/<number>`,
   `ringq/internal/<user@domain>` and `ringq/external/<uri>` in the log,
   `show channels` and events. Generated outbound routes and eFax dial
   `ringq/gateway/...`. Existing dialplans that use the older spellings
-  (`sofia/gateway/...`, `sofia/internal/...`) still work. In `rq_cli`,
+  (`sofia/gateway/...`, `sofia/internal/...`) still work. In `or_cli`,
   `sip status` shows the trunks (`sofia status` still works, for the
   portal).
 
@@ -303,7 +303,7 @@ Version 0.5.12 added:
   every 5 seconds (level, and which fax tones: CED, V.21...), each fax
   message sent and received, and a summary at the end. When a fax fails,
   the call's audio is kept, and the **Status log** shows two download
-  buttons (ear: what the far end sent; speaker: what RingQswitch sent).
+  buttons (ear: what the far end sent; speaker: what ORswitch sent).
   A trunk asking to switch to T.38 is logged too. Section 12C.
 
 Version 0.5.11 added:
@@ -317,7 +317,7 @@ Version 0.5.11 added:
 Version 0.5.10 fixed:
 
 - **Fax extensions on RingQ databases**: "the database has no v_fax table"
-  when saving a fax extension. RingQswitch now creates the `v_fax` table by
+  when saving a fax extension. ORswitch now creates the `v_fax` table by
   itself when it starts, like its other tables.
 
 Version 0.5.9 adds:
@@ -328,7 +328,7 @@ Version 0.5.9 adds:
   to it in **Call Flow → Others → Fax**, and what arrives is a PDF in the
   **Inbox**. Tabs Overview, Send eFax, Inbox, Status log and Settings
   (station id and page header). Section 12C.
-- **Fax is built into RingQswitch**: the `rxfax` and `txfax` applications
+- **Fax is built into ORswitch**: the `rxfax` and `txfax` applications
   (the audio way, "T.38 off", through any G.711 trunk) with the variables
   and events RingQ's dialplans and fax workers expect, so they work
   unchanged. Sending a PDF needs the server's PDF converter
@@ -389,14 +389,14 @@ Version 0.5.5 added:
 
 Version 0.5.4 added:
 
-- **rq_cli console**: `sudo rq_cli` opens the console with a banner and
+- **or_cli console**: `sudo or_cli` opens the console with a banner and
   the **live log in colour**, without typing a password (it is read from
-  `/etc/ringqswitch/ringqswitch.xml`). It shows `New Channel`, `receiving invite from`, `SIP auth challenge`, `Processing ...
+  `/etc/orswitch/orswitch.xml`). It shows `New Channel`, `receiving invite from`, `SIP auth challenge`, `Processing ...
   in context ...`, the **dialplan trace** (`Dialplan: ... Regex (PASS) ...`,
   `Action ...`), `EXECUTE ...`, `Callstate Change`, `Hangup ...
   [NORMAL_CLEARING]`, `Close Channel`, registrations and queue events.
   `/log info` (less), `/log debug` (everything), `/nolog`, `/events`,
-  `/help`, `/exit`; `rq_cli -x "show channels"` runs one command.
+  `/help`, `/exit`; `or_cli -x "show channels"` runs one command.
 - **Web password visible**: on the extension page the web password shows
   as dots with an eye to see it (owners). A password set before 0.5.4
   appears after that user signs in once more (until then the field says
@@ -417,14 +417,14 @@ Version 0.5.4 added:
 Version 0.5.3 added:
 
 - **Top bar like RingQ**: calendar (Meetings), Meet, Chat, **reload
-  (clears the RingQswitch cache)**, **tower (Call status)**, Wallboard,
+  (clears the ORswitch cache)**, **tower (Call status)**, Wallboard,
   **globe (language)**, light/dark, and your name.
 - **User menu** (click your name): your name and domain, your extension
   with its status (Online, On break, Do not disturb), **Connected
   devices** (the phones and apps signed in as your extension, with a
   refresh button), View profile, Logout, the version and **Previous
   builds**.
-- **Reload = clear the cache** (Owners): RingQswitch forgets what it keeps
+- **Reload = clear the cache** (Owners): ORswitch forgets what it keeps
   in memory (carriers' addresses, number patterns) and reads everything
   again from the database at once (`xml_flush_cache` + `reloadxml`). Calls
   in progress continue. Use it after changing something
@@ -481,7 +481,7 @@ Version 0.5.2 added:
   answered, abandoned and missed today, % answered, callers waiting,
   average waiting and talking time, agents and busy agents. Every wallboard
   section has −, + and full-screen buttons.
-- **Database tools' "permission denied"** fixed: RingQswitch now lets the database
+- **Database tools' "permission denied"** fixed: ORswitch now lets the database
   owner and the owner of the RingQ tables read and change its own tables
   (and any user listed in `grant-to`).
 - Menus at 13 px, and a more compact **Team directory**.
@@ -602,35 +602,35 @@ explanations; you do not type them.
 
 ## 0. Already on 0.4.x or 0.5.x? Upgrade to 0.5.12 (2 minutes)
 
-Nothing changes in your settings. RingQswitch adds its new tables by itself
+Nothing changes in your settings. ORswitch adds its new tables by itself
 when it starts. On the server, logged in as root, use **one** of the two
 packages:
 
 **A. From the source package** (what you use now), after uploading
-`ringqswitch-0.5.12-src.tar.gz` to `/root`:
+`orswitch-0.5.12-src.tar.gz` to `/root`:
 
 ```bash
 cd /opt
-tar xzf /root/ringqswitch-0.5.12-src.tar.gz
-cd /opt/ringqswitch-0.5.12
+tar xzf /root/orswitch-0.5.12-src.tar.gz
+cd /opt/orswitch-0.5.12
 make build
 sudo make install
-sudo systemctl restart ringqswitch
-ringqswitch -version
-# should print: RingQswitch 0.5.12
+sudo systemctl restart orswitch
+orswitch -version
+# should print: ORswitch 0.5.12
 ```
 
 **B. From the ready-made package**, after uploading
-`ringqswitch-0.5.12-linux-bin.tar.gz` to `/root`:
+`orswitch-0.5.12-linux-bin.tar.gz` to `/root`:
 
 ```bash
 cd /opt
-tar xzf /root/ringqswitch-0.5.12-linux-bin.tar.gz
-cd /opt/ringqswitch-0.5.12-linux
+tar xzf /root/orswitch-0.5.12-linux-bin.tar.gz
+cd /opt/orswitch-0.5.12-linux
 sudo bash packaging/install.sh
-sudo systemctl restart ringqswitch
-ringqswitch -version
-# should print: RingQswitch 0.5.12
+sudo systemctl restart orswitch
+orswitch -version
+# should print: ORswitch 0.5.12
 ```
 
 **New in 0.5.9: eFax.** To fax PDFs, install the PDF converter once (TIFF
@@ -641,7 +641,7 @@ sudo apt install -y ghostscript
 ```
 
 If the RingQ fax engine (`ringq-fax-worker`) runs on this server, stop it
-so that only RingQswitch sends the queued faxes (both use the same
+so that only ORswitch sends the queued faxes (both use the same
 `fax_jobs` table, so the history stays):
 
 ```bash
@@ -657,12 +657,12 @@ main port, external on 5080). Then open 5080 in the firewall as shown
 below.
 
 **New in 0.5.2: SIP profiles open their ports.** If your RingQ database
-has an enabled `external` profile (port 5080), RingQswitch now listens on
+has an enabled `external` profile (port 5080), ORswitch now listens on
 5080 too. See which ports are open under **Settings →
 Global → SIP Profile**, and open them in the firewall:
 
 ```bash
-sudo journalctl -u ringqswitch -n 50 --no-pager | grep "SIP profile"
+sudo journalctl -u orswitch -n 50 --no-pager | grep "SIP profile"
 # SIP profile listening profile=external port=5080
 sudo ufw allow 5080/udp && sudo ufw allow 5080/tcp
 ```
@@ -670,12 +670,12 @@ sudo ufw allow 5080/udp && sudo ufw allow 5080/tcp
 Then check that the browser audio port is ready:
 
 ```bash
-sudo journalctl -u ringqswitch -n 30 --no-pager | grep "dialer and meetings audio"
+sudo journalctl -u orswitch -n 30 --no-pager | grep "dialer and meetings audio"
 # shows: udp=8443 tcp=8443 public_ip=<your public IP or empty>
 ```
 
-If `ringqswitch -version` still prints an older version, the old program is
-still running: `sudo systemctl restart ringqswitch` and check again.
+If `orswitch -version` still prints an older version, the old program is
+still running: `sudo systemctl restart orswitch` and check again.
 
 3. Open UDP 8443 if you have not yet. Audio then uses UDP, which sounds
    best. Without it, audio still works over TCP 8443.
@@ -704,7 +704,7 @@ sudo ufw allow 16384:32768/udp
    audio went:
 
 ```bash
-sudo journalctl -u ringqswitch -n 200 --no-pager | grep -E "dialer: (audio|call audio|one-way)|no audio received"
+sudo journalctl -u orswitch -n 200 --no-pager | grep -E "dialer: (audio|call audio|one-way)|no audio received"
 # dialer: audio connected user=1000@... via=udp            (browser <-> server, best)
 # dialer: call audio ok ... from_browser=... from_call=...  (sound went both ways)
 # dialer: one-way or no audio ... problem="No sound reaches the server from the other side ..."
@@ -725,27 +725,27 @@ server, and with `--reset` it deletes the test database.
 
 **Option A (easiest, no Go needed): the prebuilt package**
 
-1. Download `ringqswitch-0.5.12-linux-bin.tar.gz` from this chat.
+1. Download `orswitch-0.5.12-linux-bin.tar.gz` from this chat.
 2. Upload it to the server's `/root` folder with your file transfer
    program (SFTP), as you did before.
 3. On the server, logged in as root:
 
 ```bash
 cd /opt
-tar xzf /root/ringqswitch-0.5.12-linux-bin.tar.gz
-cd /opt/ringqswitch-0.5.12-linux
+tar xzf /root/orswitch-0.5.12-linux-bin.tar.gz
+cd /opt/orswitch-0.5.12-linux
 sudo bash packaging/install.sh
-# ends with: ==> keeping existing configuration in /etc/ringqswitch ... configuration OK
-ringqswitch -version
-# should print: RingQswitch 0.5.12
-sudo systemctl restart ringqswitch
-sudo systemctl status ringqswitch --no-pager
+# ends with: ==> keeping existing configuration in /etc/orswitch ... configuration OK
+orswitch -version
+# should print: ORswitch 0.5.12
+sudo systemctl restart orswitch
+sudo systemctl status orswitch --no-pager
 # should say: active (running)
 ```
 
 **Option B: build from source** (needs **Go 1.24 or newer**)
 
-1. Download `ringqswitch-0.5.12-src.tar.gz` and upload it to `/root`.
+1. Download `orswitch-0.5.12-src.tar.gz` and upload it to `/root`.
 2. Check Go:
 
 ```bash
@@ -762,17 +762,17 @@ go version
 
 ```bash
 cd /opt
-tar xzf /root/ringqswitch-0.5.12-src.tar.gz
-cd /opt/ringqswitch-0.5.12
+tar xzf /root/orswitch-0.5.12-src.tar.gz
+cd /opt/orswitch-0.5.12
 make build
 sudo make install
-ringqswitch -version
-# should print: RingQswitch 0.5.12
-sudo systemctl restart ringqswitch
+orswitch -version
+# should print: ORswitch 0.5.12
+sudo systemctl restart orswitch
 ```
 
 The new tables (web logins, chat, meetings, security rules) are created by
-themselves when RingQswitch starts.
+themselves when ORswitch starts.
 
 ### Step 2: Open the port for browser audio and video
 
@@ -794,7 +794,7 @@ Pick a web password of at least 8 characters, different from the SIP
 password. Replace `MyWebPass2024` with yours:
 
 ```bash
-sudo RQ_WEB_PASSWORD='MyWebPass2024' ringqswitch -conf /etc/ringqswitch -web-access 1000@test.ringq.local -role owner
+sudo OR_WEB_PASSWORD='MyWebPass2024' orswitch -conf /etc/orswitch -web-access 1000@test.ringq.local -role owner
 # prints: 1000@test.ringq.local can sign in to the web interface (owner)
 ```
 
@@ -822,11 +822,11 @@ Then run one command (the certificate files you mentioned,
 `/etc/letsencrypt/live/pbx.example.com/`, must be on this server):
 
 ```bash
-cd /opt/ringqswitch-0.5.12-linux      # or /opt/ringqswitch-0.5.12 if you used Option B
+cd /opt/orswitch-0.5.12-linux      # or /opt/orswitch-0.5.12 if you used Option B
 sudo bash packaging/use-certificate.sh pbx.example.com
 ```
 
-It copies the certificate where RingQswitch can read it and switches the web
+It copies the certificate where ORswitch can read it and switches the web
 interface to it. It also installs a renewal hook, so renewed certificates
 are picked up within a minute, with no restart. The end of
 the output shows the address:
@@ -839,7 +839,7 @@ Done. Open: https://pbx.example.com:8443/
 > another web server) uses port 443 on this server, run
 > `sudo bash packaging/use-certificate.sh pbx.example.com --port 443` and
 > allow it in the firewall: `sudo ufw allow 443/tcp`. If another web server
-> already uses port 443, see section 11.3 to put RingQswitch behind it.
+> already uses port 443, see section 11.3 to put ORswitch behind it.
 
 ### Step 5: Sign in
 
@@ -847,7 +847,7 @@ Done. Open: https://pbx.example.com:8443/
    you skipped Step 4; then accept the certificate warning once).
 2. User: **1000**. Password: the web password from Step 3.
 3. You can still sign in as **admin** with the password in
-   `/etc/ringqswitch/ringqswitch.xml` (`admin-password`). The admin account
+   `/etc/orswitch/orswitch.xml` (`admin-password`). The admin account
    is for the whole server; it has no extension, so it has no dialer, chat or
    meetings.
 
@@ -889,7 +889,7 @@ Anti-hacking** (section 10): Action **Deny**, the address (e.g.
 **c) Allow only your office to open the web interface** (recommended).
 In **Settings → Security → Webapp & mobile restriction → IP**, add your
 office's public IP (find it at whatismyip.com) with Action **Allow**.
-RingQswitch refuses a rule that would lock out the address you are using.
+ORswitch refuses a rule that would lock out the address you are using.
 
 **d) Stop toll fraud.** In **Settings → Security → Allowed countries**,
 untick the countries nobody in your company calls (the satellite and
@@ -901,7 +901,7 @@ premium networks under **Other** first).
 
 | Who | Signs in with | Can do |
 |---|---|---|
-| **admin** | `admin` + `admin-password` from ringqswitch.xml | Everything, in every domain. No dialer, chat or meetings (it is not an extension). |
+| **admin** | `admin` + `admin-password` from orswitch.xml | Everything, in every domain. No dialer, chat or meetings (it is not an extension). |
 | **Owner** extension | extension number + web password | Everything in their domain: all settings, all calls, all reports. Also Security, System, Domains and the Event log, unless the server administrator turned that off (see below). Dialer, chat and meetings. |
 | **Manager** extension | extension number + web password | A supervisor: everything a User has, plus **Listen / Whisper / Barge in / Divert / Hang up** on every call, every agent's status (log in, breaks), **all** reports and the Devices online list. No settings: cannot change extensions, queues, gateways, roles or security. |
 | **User** extension | extension number + web password | Monitoring (**Dashboard**, **Call centre (live)**, **Wallboard**, **Team directory**), **Reports** (only their own calls and agent records), the **Dialer**, Chat, Meetings, their own voicemail and **My account**. No settings, and no Listen, Barge, Divert or Hang up on other people's calls. |
@@ -927,7 +927,7 @@ premium networks under **Other** first).
   minutes before trying again.
 - An Owner should not manage the whole server? Add
   `<param name="owner-server-access" value="false"/>` to the `<web>` section
-  of `/etc/ringqswitch/ringqswitch.xml` and restart. Owners then keep their
+  of `/etc/orswitch/orswitch.xml` and restart. Owners then keep their
   domain but lose Security, System, Domains and the Event log; only admin has
   them.
 
@@ -1364,7 +1364,7 @@ addresses are banned; the switch on the right turns SIP Guard on and off
 | SIP Registration Protection | failed sign-ins of unknown or disabled users | 30 in 5 minutes, 30 minutes |
 | Web Request Protection | web pages that do not exist (vulnerability scanners), requests without signing in | 300 in 1 minute, 1 hour |
 | Web Traffic Protection | every web request (denial of service) | 3000 in 1 minute, 1 hour |
-| SIP Password Protection | an existing extension with a wrong password | from `auth-fail-threshold`, `auth-fail-window`, `auth-block-seconds` in ringqswitch.xml (10 in 1 minute, 10 minutes) |
+| SIP Password Protection | an existing extension with a wrong password | from `auth-fail-threshold`, `auth-fail-window`, `auth-block-seconds` in orswitch.xml (10 in 1 minute, 10 minutes) |
 | Admin Login Protection | failed sign-ins to this web interface | 10 in 10 minutes, 1 hour |
 | SIP Invite Protection | too many calls from one address (toll fraud, call spam) | off; 200 in 3 minutes, 1 hour |
 
@@ -1373,7 +1373,7 @@ Your trunks, trusted carriers, **Allow** addresses and this server are never
 banned. The pen of a protection changes it (on/off, failures, window, ban).
 **Remote Server Access Protection** (SSH) belongs to the server's own SSH
 protection service: when one is installed its SSH settings are shown
-(read-only; RingQswitch runs without root).
+(read-only; ORswitch runs without root).
 
 - **Live bans**: each protection with its banned addresses (the ⓘ shows why
   and until when). The bin unbans one; tick several and **Unban selected**.
@@ -1386,7 +1386,7 @@ protection service: when one is installed its SSH settings are shown
   ban ended, by whom).
 
 Bans survive restarts (RingQ's `sip_security_blocks`, history in
-`security_audit_log`); `rq_cli -x "blocked"` lists them and `rq_cli -x
+`security_audit_log`); `or_cli -x "blocked"` lists them and `or_cli -x
 "unblock 203.0.113.7"` lifts them. Rules are in `rq_security_rules`, the
 SIP Guard settings and the global IP restriction in `rq_settings`.
 
@@ -1396,9 +1396,9 @@ SIP Guard settings and the global IP restriction in `rq_settings`.
 
 ### 11.1 The default
 
-RingQswitch has its own built-in web server; you do not need another web
+ORswitch has its own built-in web server; you do not need another web
 server. The settings are in the `<web>` section of
-`/etc/ringqswitch/ringqswitch.xml`:
+`/etc/orswitch/orswitch.xml`:
 
 ```xml
 <web>
@@ -1412,25 +1412,25 @@ server. The settings are in the `<web>` section of
 </web>
 ```
 
-- **self-signed** (what 0.3.0 used): RingQswitch makes its own certificate,
+- **self-signed** (what 0.3.0 used): ORswitch makes its own certificate,
   so the browser warns once.
 - **"cert,key"**: your own certificate. This is what `use-certificate.sh`
   sets up (section 1, Step 4):
 
   ```xml
-  <param name="tls" value="/etc/ringqswitch/tls/pbx.example.com/fullchain.pem,/etc/ringqswitch/tls/pbx.example.com/privkey.pem"/>
+  <param name="tls" value="/etc/orswitch/tls/pbx.example.com/fullchain.pem,/etc/orswitch/tls/pbx.example.com/privkey.pem"/>
   ```
 
 ### 11.2 Why the certificate is copied
 
 The service runs as the user `ringq`, which cannot read
 `/etc/letsencrypt/live/...` (only root can). The script copies the two files
-to `/etc/ringqswitch/tls/pbx.example.com/`. The key there is readable by
+to `/etc/orswitch/tls/pbx.example.com/`. The key there is readable by
 `ringq` only. The originals are not changed.
 
 Renewals take care of themselves. The certificate renewal runs the hook
-`/etc/letsencrypt/renewal-hooks/deploy/ringqswitch-pbx.example.com.sh`, which
-copies the new files, and RingQswitch loads them within a minute. To test
+`/etc/letsencrypt/renewal-hooks/deploy/orswitch-pbx.example.com.sh`, which
+copies the new files, and ORswitch loads them within a minute. To test
 renewal: `sudo certbot renew --dry-run`.
 
 ### 11.3 Behind another web server (only if one already uses port 443)
@@ -1438,7 +1438,7 @@ renewal: `sudo certbot renew --dry-run`.
 To open the portal as https://pbx.example.com/ while another web server
 (a reverse proxy) serves port 443, let it pass the portal through.
 
-1. In `/etc/ringqswitch/ringqswitch.xml`, make RingQswitch listen on this
+1. In `/etc/orswitch/orswitch.xml`, make ORswitch listen on this
    server only, without TLS (the proxy does TLS):
 
    ```xml
@@ -1446,9 +1446,9 @@ To open the portal as https://pbx.example.com/ while another web server
    <param name="tls" value="off"/>
    ```
 
-2. Add a site to the proxy, e.g. `/etc/nginx/sites-available/ringqswitch`.
+2. Add a site to the proxy, e.g. `/etc/nginx/sites-available/orswitch`.
    Link it into `sites-enabled` with
-   `sudo ln -s /etc/nginx/sites-available/ringqswitch /etc/nginx/sites-enabled/`:
+   `sudo ln -s /etc/nginx/sites-available/orswitch /etc/nginx/sites-enabled/`:
 
    ```
    server {
@@ -1472,13 +1472,13 @@ To open the portal as https://pbx.example.com/ while another web server
    }
    ```
 
-3. Check and reload the proxy, then restart RingQswitch:
-   `sudo nginx -t && sudo systemctl reload nginx && sudo systemctl restart ringqswitch`.
+3. Check and reload the proxy, then restart ORswitch:
+   `sudo nginx -t && sudo systemctl reload nginx && sudo systemctl restart orswitch`.
 
-RingQswitch believes the `X-Real-IP` header only from a proxy on the same
+ORswitch believes the `X-Real-IP` header only from a proxy on the same
 server. Failed-login protection and the web allow-list therefore see the
 real browser address. **UDP 8443 must stay open**: audio and video for the
-dialer and meetings go straight to RingQswitch, not through the proxy.
+dialer and meetings go straight to ORswitch, not through the proxy.
 Behind a proxy the TCP fallback is not available, because the proxy owns the
 web port.
 
@@ -1591,7 +1591,7 @@ skipped: they are never rung and collect no missed calls.
    Available DID Numbers, and calls to it are not answered until you link
    it again.
 
-There is no fax module in RingQswitch, so Others has no fax entry.
+There is no fax module in ORswitch, so Others has no fax entry.
 
 ### 12.4 Make the agents Available
 
@@ -1657,10 +1657,10 @@ and the fields to fill in. Each domain sets up its own providers.
 
 1. In Microsoft's admin center: **App registrations → New
    registration**. Redirect URI: platform **Web**, paste the Redirect URI
-   from the RingQswitch window (it ends in `/api/sso/callback/microsoft`).
+   from the ORswitch window (it ends in `/api/sso/callback/microsoft`).
 2. Copy the **Application (client) ID** and the **Directory (tenant) ID**.
 3. **Certificates & secrets → New client secret**: copy its **Value**.
-4. In RingQswitch: **Microsoft → Configure**, paste the three values, keep
+4. In ORswitch: **Microsoft → Configure**, paste the three values, keep
    **Enable SSO** on, **Save configuration**. A wrong tenant ID is reported
    at once.
 
@@ -1773,11 +1773,11 @@ RingQ's fax DIDs use:
 (plus `caller_destination`, `fax_uuid`, `fax_extension` and `fax_ident`
 for the eFax inbox). `fax_enable_t38=true` lets the carrier switch the fax
 to T.38 (it is also what happens without the variable);
-`fax_enable_t38=false` keeps it audio. RingQswitch does not ask for T.38
+`fax_enable_t38=false` keeps it audio. ORswitch does not ask for T.38
 itself, and has no error correction mode: `fax_enable_t38_request` and
 `fax_enable_ecm` are accepted for existing dialplans and change nothing here.
 
-**Where the files are** (`fax-dir`, by default `/var/lib/ringqswitch/fax`):
+**Where the files are** (`fax-dir`, by default `/var/lib/orswitch/fax`):
 
 | | Folder | File |
 |---|---|---|
@@ -1785,7 +1785,7 @@ itself, and has no error correction mode: `fax_enable_t38_request` and
 | Sent (the document you uploaded) | `<fax-dir>/<domain uuid>/outbox/` | `<fax id>.pdf` (or `.tif`, `.png`, `.jpg`, `.gif` as uploaded) |
 
 To keep them where the RingQ fax engine did, set `<param name="fax-dir"
-value="/var/spool/fax"/>` in `/etc/ringqswitch/ringqswitch.xml`, run
+value="/var/spool/fax"/>` in `/etc/orswitch/orswitch.xml`, run
 `sudo mkdir -p /var/spool/fax && sudo chown ringq:ringq /var/spool/fax`
 and restart.
 
@@ -1804,13 +1804,13 @@ and restart.
   moment, which is how carriers expect it (they switch on the first fax
   tones).
 - If you ran the RingQ fax engine (`ringq-fax-worker`) against this
-  database, stop it: RingQswitch now sends the queued faxes itself (both
+  database, stop it: ORswitch now sends the queued faxes itself (both
   use the same `fax_jobs` table, so the history stays).
 - Every fax is written to **Settings → Event log** (kind "fax").
 
 **When a fax fails**
 
-1. Follow it live: `rq_cli`, then send the fax again. Each fax prints lines
+1. Follow it live: `or_cli`, then send the fax again. Each fax prints lines
    like:
 
 ```
@@ -1832,14 +1832,14 @@ fax: V.21 signals heard 3, messages received 4, damaged 0; T.38 datagrams receiv
 ```
 
    - "no audio is arriving from the far end": RTP from the trunk does not
-     reach RingQswitch (firewall, NAT, the trunk's media address).
+     reach ORswitch (firewall, NAT, the trunk's media address).
    - Audio but "no fax tones": the number answered as a voice line (or a
      menu), not a fax machine.
    - CED or V.21 heard, but "messages received 0" and many "damaged": the
      fax signal arrives damaged (a compressed codec in the carrier's
      network, packet loss).
    - "T.38: no packets are arriving from the far end": the carrier
-     switched to T.38 but its packets do not reach RingQswitch (firewall:
+     switched to T.38 but its packets do not reach ORswitch (firewall:
      open the RTP port range for UDP from the carrier's media servers).
      "the far end is quiet" while a page goes out is normal.
    - "re-INVITE to T.38 refused": the call has `fax_enable_t38=false` (or
@@ -1854,7 +1854,7 @@ fax: V.21 signals heard 3, messages received 4, damaged 0; T.38 datagrams receiv
 ## 12D. Call transcription and sentiment
 
 Menu **Settings → Call transcription** (owners). After each call,
-RingQswitch writes down who said what and when, and how they felt. It all
+ORswitch writes down who said what and when, and how they felt. It all
 happens on your server: the speech recogniser understands 99 languages and
 no call audio is sent anywhere.
 
@@ -1862,7 +1862,7 @@ no call audio is sent anywhere.
 builds the recogniser and a speech model):
 
 ```bash
-sudo bash /usr/local/share/ringqswitch/install-transcription.sh
+sudo bash /usr/local/share/orswitch/install-transcription.sh
 ```
 
 (`sudo make install` puts it there; it is also `packaging/install-transcription.sh`
@@ -1881,7 +1881,7 @@ Large v3 Turbo (also a compact one), Large v3, and English-only versions
 of the smaller ones. The administrator (or an owner allowed the server
 pages) clicks **Download**: the server fetches it from the speech model
 library on the internet (`transcribe-model-url`, so the server needs
-internet access) into `/var/lib/ringqswitch/speech/`, with a progress bar. **Delete** removes a
+internet access) into `/var/lib/orswitch/speech/`, with a progress bar. **Delete** removes a
 downloaded model; one installed by the script is removed on the server
 (`sudo rm` on the path shown). Then choose the model each domain uses
 under **Speech model** (*Server default* is Small, or Base, whichever is
@@ -1963,11 +1963,11 @@ their own calls only.
 - Sentiment is a measure of the words used (a sentiment word list, with
   call-centre words added: "overcharged", "refund", "escalate"...), not of the tone of
   voice. "Sorry" said by an agent counts as neutral.
-- More calls at once: `transcribe-workers` in ringqswitch.xml (each uses
+- More calls at once: `transcribe-workers` in orswitch.xml (each uses
   `transcribe-threads` CPUs, default half the CPUs, at most 4).
 - The settings page lists the last 24 hours: waiting, transcribing,
   transcribed, no speech and failed, updated as calls are transcribed. A
-  failure is logged with the reason (`journalctl -u ringqswitch | grep
+  failure is logged with the reason (`journalctl -u orswitch | grep
   transcri`).
 - **Voicemail messages** are transcribed too (switch **Transcribe
   voicemail messages**), one speaker, with the same model and language;
@@ -1994,15 +1994,15 @@ model for live text when its main model is larger); on a server set up
 earlier run it again:
 
 ```bash
-sudo bash /usr/local/share/ringqswitch/install-transcription.sh
+sudo bash /usr/local/share/orswitch/install-transcription.sh
 ```
 
 Without the live recogniser live transcription still works, a few seconds
-later (each sentence loads the model again). With it, RingQswitch starts
+later (each sentence loads the model again). With it, ORswitch starts
 the live recogniser by itself on 127.0.0.1 as soon as live transcription is on
 for a domain, loads the model and keeps it loaded, so calls never wait
 for it; it stops it when live transcription is turned off
-(`transcribe-live-url` in ringqswitch.xml uses one started elsewhere
+(`transcribe-live-url` in orswitch.xml uses one started elsewhere
 instead). The settings page shows *Live transcription: Running* once the
 model is loaded (*Starting* while it loads, or why it could not start).
 When the live model is Small or larger, the page suggests Base (about 3
@@ -2157,8 +2157,8 @@ In **Call history** the call's path (the arrow on a row) shows *AI agent
   it must not do ("Do not promise discounts") as well.
 - The API key is encrypted with the server's key file
   (`data-dir/web-passwords.key`). If that file is lost, enter the key again.
-  Instead of saving a key, you can also set `RQ_AI_API_KEY` in the
-  service's environment (`systemctl edit ringqswitch`).
+  Instead of saving a key, you can also set `OR_AI_API_KEY` in the
+  service's environment (`systemctl edit orswitch`).
 
 ---
 
@@ -2316,11 +2316,11 @@ rules.
 **Settings → Global** shows tiles like RingQ. Three of them are new pages:
 
 - **SIP Profile**: the SIP ports. **internal** is the main port from
-  `ringqswitch.xml` (5060). Profiles from the RingQ database, or ones you
+  `orswitch.xml` (5060). Profiles from the RingQ database, or ones you
   **Add** here, open their own port (e.g. **external** on 5080). Calls and
   registrations arriving there are answered from it, and gateways whose
   profile is `external` send from it. **Status** shows whether the port is
-  open (or why not, e.g. "address already in use"). RingQswitch always
+  open (or why not, e.g. "address already in use"). ORswitch always
   gives out this server's own address; an IP copied from the old RingQ
   server is shown with a warning and not used. SIP over TLS is not
   supported yet. Open every port in the firewall.
@@ -2378,10 +2378,10 @@ check-sync).
 slots...), shown in every dialer after the extension's own keys ("Show in
 every dialer").
 
-What the phones get from RingQswitch:
+What the phones get from ORswitch:
 
 - **Lamps**: phones subscribe (SIP SUBSCRIBE, `Event: dialog`) to the
-  extensions and parking slots of their keys; RingQswitch tells them at once
+  extensions and parking slots of their keys; ORswitch tells them at once
   when a call rings, is answered, ends, or is parked. A ringing key picks
   the call up with `*8` + extension, or by the call's dialog (phones that
   pick up that way).
@@ -2462,7 +2462,7 @@ are icons. Users see only their own box.
   for one queue.
 
 WAV and MP3 files work: uploads are converted to the telephone format
-(8 kHz mono) by RingQswitch.
+(8 kHz mono) by ORswitch.
 
 ---
 
@@ -2471,29 +2471,29 @@ WAV and MP3 files work: uploads are converted to the telephone format
 | Problem | What to do |
 |---|---|
 | `make build`: "go.mod requires go >= 1.24.0" | Install Go 1.24 (section 1, Step 1, Option B), or use the prebuilt package (Option A) |
-| The page does not open | Use **https**://…:8443. Check `sudo systemctl status ringqswitch` and `sudo ufw status` (8443/tcp). With your own certificate, use the name (pbx.example.com), not the IP. |
+| The page does not open | Use **https**://…:8443. Check `sudo systemctl status orswitch` and `sudo ufw status` (8443/tcp). With your own certificate, use the name (pbx.example.com), not the IP. |
 | "wrong user name or password" as 1000 | The extension needs web access with a **web password** (section 1, Step 3). The SIP password does not work for the web. |
 | "several domains have extension 1000" | Sign in as `1000@your.domain`. |
 | A menu item is missing | Your role does not include it (section 3). Sign in as an Owner or admin. |
 | "too many failed logins" | Wait 10 minutes. |
 | The desk phone and the dialer push each other offline | The extension allows only one device. On the extension form, set **Advanced → Devices allowed at once** to 2 or more. |
-| The dialer stays on "Not registered" | See **Settings → Event log** and `sudo journalctl -u ringqswitch -n 50 \| grep -i dialer`. |
+| The dialer stays on "Not registered" | See **Settings → Event log** and `sudo journalctl -u orswitch -n 50 \| grep -i dialer`. |
 | Dialer: **the other side is quiet** or **you are quiet** | Dialer → Settings: check that **Microphone** and **Speaker** are your headset, raise **Microphone boost** (they hear you louder) or **Speaker volume**, and watch **Your voice level** move when you speak. Also check the volume settings of your computer. |
-| Dialer: **one-way audio** (you do not hear them, or they do not hear you) | During the call press **Audio check**: the red line shows where the sound stops. "Other side → server: Nothing arrives" means the phone's or carrier's audio does not reach the server: open UDP 16384-32768 in the server firewall **and** your cloud provider's firewall (section 0, step 4). "Your mic → server: Only silence" means your microphone is muted or the wrong one. "Server → your speaker: Not playing" means the browser held the sound back: click **Turn on sound**. The log also says it: `sudo journalctl -u ringqswitch \| grep -E "one-way\|no audio received"`. |
+| Dialer: **one-way audio** (you do not hear them, or they do not hear you) | During the call press **Audio check**: the red line shows where the sound stops. "Other side → server: Nothing arrives" means the phone's or carrier's audio does not reach the server: open UDP 16384-32768 in the server firewall **and** your cloud provider's firewall (section 0, step 4). "Your mic → server: Only silence" means your microphone is muted or the wrong one. "Server → your speaker: Not playing" means the browser held the sound back: click **Turn on sound**. The log also says it: `sudo journalctl -u orswitch \| grep -E "one-way\|no audio received"`. |
 | Dialer: **delay** before you hear the other side | Dialer → Settings → **Audio path**. "TCP" means UDP 8443 is blocked (the server firewall, your cloud provider's firewall, or the office network): open it, then stop and start the dialer. On "UDP", the delay comes from the network or the carrier. |
 | Meeting: **Transcribe** writes nothing for one person | Their browser has no built-in speech recognition, or their microphone is muted. Ask them to use a browser that has it. |
 | Meeting: a presented **PDF** shows nothing | Some browsers (and phones) cannot show PDFs inside a page. Present a picture (PNG or JPEG) of the slide instead, or share your screen. |
-| Dialer or meeting: connected but **no sound or video** | Upgrade to 0.4.2 first: 0.4.1 and older had no audio on servers with `ext-rtp-ip` or `public-ip` set. Then look at the dialer's red box: it shows the address it tried. Run `sudo ufw allow 8443/udp`, and also open it in your cloud provider's firewall if you use one. `sudo journalctl -u ringqswitch \| grep "dialer: audio"` shows "connected via udp/tcp" or "could not connect" with the addresses offered. |
+| Dialer or meeting: connected but **no sound or video** | Upgrade to 0.4.2 first: 0.4.1 and older had no audio on servers with `ext-rtp-ip` or `public-ip` set. Then look at the dialer's red box: it shows the address it tried. Run `sudo ufw allow 8443/udp`, and also open it in your cloud provider's firewall if you use one. `sudo journalctl -u orswitch \| grep "dialer: audio"` shows "connected via udp/tcp" or "could not connect" with the addresses offered. |
 | The dialer's call timer differs from the dashboard | Fixed in 0.4.2 (the dialer used the PC's clock). |
 | The browser does not ask for the microphone | The page must be https. Click the padlock → Site settings → Microphone → Allow. |
 | Dashboard shows more phones than you have | The browser dialer counts as a phone ("Web Dialer"). A desk phone that re-registers from a new port now replaces its old entry instead of adding one. |
 | Agents available is 0 | Agents start **Logged out**. Make them Available (section 12.4). Only extensions in a queue, or with "Takes queue calls" on, are agents. |
 | Listen / Barge in does nothing | It rings **your** extension. Answer that phone or the browser dialer. The admin account is asked which extension to ring. |
-| Locked yourself out with a web allow-list rule | On the server: `sudo -u postgres psql ringqswitch -c "delete from rq_security_rules where rule_type='web-allow'"`. It applies within seconds. |
-| Certificate expired or not renewed | `sudo certbot renew`, then check `ls -l /etc/ringqswitch/tls/pbx.example.com/`. Running `sudo bash packaging/use-certificate.sh pbx.example.com` again repairs it. |
-| Database tool: **permission denied for table rq_…** | Fixed in 0.5.2: restart RingQswitch once and it shares its tables with the database owner and the owner of the RingQ tables. If your database tool signs in as yet another user, add it to `<database>`: `<param name="grant-to" value="ringq"/>` and restart. At once, by hand: `sudo -u postgres psql YOURDB -c "GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO ringq"`. |
+| Locked yourself out with a web allow-list rule | On the server: `sudo -u postgres psql orswitch -c "delete from rq_security_rules where rule_type='web-allow'"`. It applies within seconds. |
+| Certificate expired or not renewed | `sudo certbot renew`, then check `ls -l /etc/orswitch/tls/pbx.example.com/`. Running `sudo bash packaging/use-certificate.sh pbx.example.com` again repairs it. |
+| Database tool: **permission denied for table rq_…** | Fixed in 0.5.2: restart ORswitch once and it shares its tables with the database owner and the owner of the RingQ tables. If your database tool signs in as yet another user, add it to `<database>`: `<param name="grant-to" value="ringq"/>` and restart. At once, by hand: `sudo -u postgres psql YOURDB -c "GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO ringq"`. |
 | Carrier calls to port **5080** get no answer | Settings → Global → **SIP Profile**: the external profile must be enabled and "Listening". Then `sudo ufw allow 5080/udp`. |
-| Something else | **Settings → System → Repair defaults**, and the full log: `sudo journalctl -u ringqswitch -n 200`. |
+| Something else | **Settings → System → Repair defaults**, and the full log: `sudo journalctl -u orswitch -n 200`. |
 
 ---
 
@@ -2512,7 +2512,7 @@ RingQ tables, shared with the RingQ portal:
 - Carrier ACL: `v_access_control_nodes` (the "providers" list)
 - Call routing: generated into `v_dialplans`
 
-RingQswitch's own tables start with `rq_`:
+ORswitch's own tables start with `rq_`:
 
 - Call centre: `rq_aux_codes`, `rq_agent_state`, `rq_agent_status_log`,
   `rq_queue_calls`

@@ -65,7 +65,7 @@ func writeConf(t *testing.T, main, directory, dialplan string) string {
 	t.Helper()
 	dir := t.TempDir()
 	for path, content := range map[string]string{
-		"ringqswitch.xml":      main,
+		"orswitch.xml":         main,
 		"directory/users.xml":  directory,
 		"dialplan/default.xml": dialplan,
 	} {

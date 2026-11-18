@@ -14,7 +14,7 @@ import (
 	"github.com/ringq-devs/orswitch/internal/media"
 )
 
-// Applications that RingQ dialplans use. Where RingQswitch
+// Applications that RingQ dialplans use. Where ORswitch
 // has no equivalent feature the application is accepted and does nothing,
 // so stored dialplans run unchanged; see docs/DATABASE.md for the list.
 
@@ -100,7 +100,7 @@ func appNoop(context.Context, *Core, *Channel, string) error { return nil }
 
 func appUnsupported(_ context.Context, _ *Core, ch *Channel, data string) error {
 	app := ch.currentApp()
-	ch.log.Warn("application not supported by RingQswitch yet; continuing", "app", app, "data", data)
+	ch.log.Warn("application not supported by ORswitch yet; continuing", "app", app, "data", data)
 	return nil
 }
 
@@ -488,7 +488,7 @@ func appLua(ctx context.Context, c *Core, ch *Channel, data string) error {
 	case "intercept_group": // the RingQ portal's *8
 		return appPickup(ctx, c, ch, "group")
 	}
-	ch.log.Warn("lua script has no RingQswitch equivalent; continuing", "script", data)
+	ch.log.Warn("lua script has no ORswitch equivalent; continuing", "script", data)
 	return nil
 }
 

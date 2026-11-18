@@ -9,7 +9,7 @@ package db_test
 //
 // Needs the switch server (node, php with phalcon, postgres binaries, Core in /var/www/ringq) and root:
 //
-//	RQ_REPORTS_E2E=1 go test ./internal/db -run TestReportsE2E -count=1 -v
+//	OR_REPORTS_E2E=1 go test ./internal/db -run TestReportsE2E -count=1 -v
 //
 // The private PostgreSQL and Redis are created by test/reports_e2e/sandbox.sh (done here when missing). The live
 // database, Redis, switch and Core are only read.
@@ -78,13 +78,13 @@ func sh(t *testing.T, script string, args ...string) string {
 // startE2E prepares the sandbox, the switch and the phones.
 func startE2E(t *testing.T, cdrTables string) *e2e {
 	t.Helper()
-	if os.Getenv("RQ_REPORTS_E2E") == "" {
-		t.Skip("RQ_REPORTS_E2E not set")
+	if os.Getenv("OR_REPORTS_E2E") == "" {
+		t.Skip("OR_REPORTS_E2E not set")
 	}
 	if os.Geteuid() != 0 {
 		t.Skip("needs root (runs node and psql against the private sandbox)")
 	}
-	e := &e2e{t: t, sbx: os.Getenv("RQ_SBX"), out: os.Getenv("RQ_E2E_OUT"), pw: map[string]string{}, phones: map[string]*testua.UA{}}
+	e := &e2e{t: t, sbx: os.Getenv("OR_SBX"), out: os.Getenv("OR_E2E_OUT"), pw: map[string]string{}, phones: map[string]*testua.UA{}}
 	if e.sbx == "" {
 		e.sbx = "/tmp/rq_reports_sbx"
 	}
@@ -111,7 +111,7 @@ func startE2E(t *testing.T, cdrTables string) *e2e {
 	_ = exec.Command("bash", filepath.Join(work, "sandbox.sh"), "down").Run()
 	t.Log(sh(t, filepath.Join(work, "sandbox.sh"), "up"))
 	t.Cleanup(func() {
-		if os.Getenv("RQ_E2E_KEEP") == "" {
+		if os.Getenv("OR_E2E_KEEP") == "" {
 			_ = exec.Command("bash", filepath.Join(work, "sandbox.sh"), "down").Run()
 		}
 	})
@@ -129,7 +129,7 @@ func startE2E(t *testing.T, cdrTables string) *e2e {
     <param name="rtp-end-port" value="52400"/>
     <param name="event-socket-listen" value=""/>
     <param name="cdr-csv" value=""/>
-    <param name="sounds-dir" value="/var/lib/ringqswitch/sounds"/>
+    <param name="sounds-dir" value="/var/lib/orswitch/sounds"/>
     <param name="recordings-dir" value="%s/rec"/>
     <param name="voicemail-dir" value="%s/vm"/>
     <param name="codec-prefs" value="PCMU,PCMA"/>
@@ -148,7 +148,7 @@ func startE2E(t *testing.T, cdrTables string) *e2e {
   </database>
   <gateways/>
 </configuration>`, dir, dir, e.sbx, e.sbx, cdrTables, e2eDomain)
-	if err := os.WriteFile(filepath.Join(dir, "ringqswitch.xml"), []byte(conf), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, "orswitch.xml"), []byte(conf), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	cfg, err := config.Load(dir)
@@ -156,7 +156,7 @@ func startE2E(t *testing.T, cdrTables string) *e2e {
 		t.Fatal(err)
 	}
 	level := slog.LevelError
-	if os.Getenv("RQ_TEST_DEBUG") != "" {
+	if os.Getenv("OR_TEST_DEBUG") != "" {
 		level = slog.LevelDebug
 	}
 	log := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: level}))
@@ -423,8 +423,8 @@ func (e *e2e) queueCall(from, queue string, agents []string, wait, talk time.Dur
 func (e *e2e) startNode(targets string) (*exec.Cmd, io.WriteCloser, *bytes.Buffer) {
 	e.t.Helper()
 	outFile := filepath.Join(e.out, "harness.json")
-	script := fmt.Sprintf("cd /tmp && env RQ_ESL_PORT=%s RQ_ESL_PASS=e2e-pass RQ_SBX=%s RQ_OUT=%s RQ_TRACE_KEYS='%s' RQ_TARGETS=%s node /tmp/rq_reports_e2e/harness.js",
-		e.eslAddr[strings.LastIndex(e.eslAddr, ":")+1:], e.sbx, outFile, os.Getenv("RQ_TRACE_KEYS"), targets)
+	script := fmt.Sprintf("cd /tmp && env OR_ESL_PORT=%s OR_ESL_PASS=e2e-pass OR_SBX=%s OR_OUT=%s OR_TRACE_KEYS='%s' OR_TARGETS=%s node /tmp/rq_reports_e2e/harness.js",
+		e.eslAddr[strings.LastIndex(e.eslAddr, ":")+1:], e.sbx, outFile, os.Getenv("OR_TRACE_KEYS"), targets)
 	cmd := exec.Command("sh", "-c", script)
 	stdin, _ := cmd.StdinPipe()
 	logf, err := os.Create(filepath.Join(e.out, "harness.log"))
@@ -650,7 +650,7 @@ func (e *e2e) checkReports(reports map[string]json.RawMessage) {
 func TestReportsE2E(t *testing.T) {
 	e := startE2E(t, "v_xml_cdr")
 	started := time.Now().Add(-2 * time.Second).Unix()
-	targets := os.Getenv("RQ_E2E_TARGETS") // e.g. server.js,queue.js
+	targets := os.Getenv("OR_E2E_TARGETS") // e.g. server.js,queue.js
 	if targets == "" {
 		targets = "server.js"
 	}

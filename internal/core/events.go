@@ -135,7 +135,7 @@ type EventBus struct {
 	mu       sync.RWMutex
 	subs     map[*Subscription]struct{}
 	coreUUID string
-	hostname string // RingQswitch-Hostname header (clients filter on it)
+	hostname string // ORswitch-Hostname header (clients filter on it)
 	ipv4     string
 	seq      atomic.Uint64
 }
@@ -156,9 +156,9 @@ func (b *EventBus) Subscribe(buffer int, filter func(*Event) bool) *Subscription
 // Publish delivers an event to all matching subscribers.
 func (b *EventBus) Publish(e *Event) {
 	e.Add("Core-UUID", b.coreUUID)
-	e.Add("RingQswitch-Hostname", b.hostname)
-	e.Add("RingQswitch-Switchname", b.hostname)
-	e.Add("RingQswitch-IPv4", b.ipv4)
+	e.Add("ORswitch-Hostname", b.hostname)
+	e.Add("ORswitch-Switchname", b.hostname)
+	e.Add("ORswitch-IPv4", b.ipv4)
 	// The same under the older prefix that existing integrations filter on.
 	e.Add(legacyHostPrefix+"Hostname", b.hostname)
 	e.Add(legacyHostPrefix+"Switchname", b.hostname)

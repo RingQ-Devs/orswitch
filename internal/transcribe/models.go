@@ -53,8 +53,8 @@ var (
 	speechCommands = []string{"/usr/local/bin/rq-speech", "/usr/local/bin/whisper-cli",
 		"/opt/whisper.cpp/build-ringq/bin/whisper-cli", "/opt/whisper.cpp/build/bin/whisper-cli", "rq-speech", "whisper-cli"}
 	// SystemModelDirs hold models installed by install-transcription.sh
-	// or the recogniser's own build (read-only for RingQswitch).
-	SystemModelDirs = []string{"/usr/local/share/ringqswitch/speech", "/usr/local/share/ringqswitch/whisper", "/opt/whisper.cpp/models"}
+	// or the recogniser's own build (read-only for ORswitch).
+	SystemModelDirs = []string{"/usr/local/share/orswitch/speech", "/usr/local/share/orswitch/whisper", "/opt/whisper.cpp/models"}
 )
 
 // FindCommand finds the speech recogniser: the configured one, or where it
@@ -80,7 +80,7 @@ type Installed struct {
 	Name string `json:"name"`
 	Path string `json:"path"`
 	Size int64  `json:"size"`
-	// Removable: in the folder RingQswitch downloads to (the others were
+	// Removable: in the folder ORswitch downloads to (the others were
 	// installed with root's rights).
 	Removable bool `json:"removable"`
 }

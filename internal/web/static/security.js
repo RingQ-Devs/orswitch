@@ -392,7 +392,7 @@ SEC_TABS.sipguard = async (body) => {
         h('p', { class: 'muted small' }, t('Blocks IPs failing remote server (sshd) authentication — secures the server\'s SSH daemon from credential stuffing.'))),
       h('span', { class: 'spacer' }), h('span', { class: 'icon-btn sec-lock', title: t('Managed by the server\'s SSH protection') }, icon('lock', 15))),
       s.installed ? chips(j, true) : h('div', { class: 'sec-chips' }, h('span', { class: 'sec-chip off' }, icon('x', 12), t('SSH protection is not installed'))),
-      h('div', { class: 'muted small sec-none' }, s.installed ? t('SSH bans are made by the server\'s SSH protection, outside RingQswitch: list them with fail2ban-client status sshd.')
+      h('div', { class: 'muted small sec-none' }, s.installed ? t('SSH bans are made by the server\'s SSH protection, outside ORswitch: list them with fail2ban-client status sshd.')
         : t('SSH logins are not watched: install the SSH protection on the server (apt install fail2ban) to protect them.')));
   };
   const bulkBtn = h('button', { type: 'button', class: 'btn small danger hidden' }, icon('trash', 14), t('Unban selected'));

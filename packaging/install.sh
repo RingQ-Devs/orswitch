@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
-# Install RingQswitch as a systemd service.
+# Install ORswitch as a systemd service.
 #
 #   From the source tree:            sudo make install   (builds first)
 #   From the prebuilt binary package: sudo bash packaging/install.sh
 #
 # Layout:
-#   /usr/local/bin/ringqswitch, /usr/local/bin/rq_cli
-#   /usr/local/share/ringqswitch/install-transcription.sh (Call transcription)
-#   /etc/ringqswitch/            configuration (kept if it already exists)
-#   /var/lib/ringqswitch/        log/cdr.csv, recordings/, sounds/
-#   /etc/systemd/system/ringqswitch.service
+#   /usr/local/bin/orswitch, /usr/local/bin/or_cli
+#   /usr/local/share/orswitch/install-transcription.sh (Call transcription)
+#   /etc/orswitch/            configuration (kept if it already exists)
+#   /var/lib/orswitch/        log/cdr.csv, recordings/, sounds/
+#   /etc/systemd/system/orswitch.service
 set -euo pipefail
 
 PREFIX=/usr/local
-CONF=/etc/ringqswitch
-DATA=/var/lib/ringqswitch
+CONF=/etc/orswitch
+DATA=/var/lib/orswitch
 SRC="$(cd "$(dirname "$0")/.." && pwd)"
 
 if [ "$(id -u)" -ne 0 ]; then
@@ -27,7 +27,7 @@ fi
 case "$SRC/" in
   "$CONF"/*|"$DATA"/*)
     echo "error: the source tree is inside $CONF or $DATA, which the installer manages." >&2
-    echo "       Move it first, e.g.:  mv $SRC /opt/ringqswitch-src && cd /opt/ringqswitch-src" >&2
+    echo "       Move it first, e.g.:  mv $SRC /opt/orswitch-src && cd /opt/orswitch-src" >&2
     exit 1 ;;
 esac
 
@@ -39,7 +39,7 @@ esac
 
 BIN=""
 for dir in "$SRC/bin" "$SRC/bin/linux-$ARCH"; do
-  if [ -x "$dir/ringqswitch" ] && [ -x "$dir/rq_cli" ]; then BIN="$dir"; break; fi
+  if [ -x "$dir/orswitch" ] && [ -x "$dir/or_cli" ]; then BIN="$dir"; break; fi
 done
 if [ -z "$BIN" ]; then
   echo "error: binaries not found. Run 'make build' first (or use the prebuilt package for $ARCH)." >&2
@@ -53,15 +53,15 @@ if ! id ringq >/dev/null 2>&1; then
 fi
 
 echo "==> installing binaries to $PREFIX/bin"
-install -m 0755 "$BIN/ringqswitch" "$PREFIX/bin/ringqswitch"
-install -m 0755 "$BIN/rq_cli" "$PREFIX/bin/rq_cli"
-# RingQ Core runs "fs_cli -x ..." for many Global Settings; rq_cli answers it (as fs_cli it
+install -m 0755 "$BIN/orswitch" "$PREFIX/bin/orswitch"
+install -m 0755 "$BIN/or_cli" "$PREFIX/bin/or_cli"
+# RingQ Core runs "fs_cli -x ..." for many Global Settings; or_cli answers it (as fs_cli it
 # falls back to FreeSWITCH's default event socket password for users who cannot read the config).
-if [ ! -e /usr/bin/fs_cli ] || [ -L /usr/bin/fs_cli ]; then ln -sf "$PREFIX/bin/rq_cli" /usr/bin/fs_cli; fi
+if [ ! -e /usr/bin/fs_cli ] || [ -L /usr/bin/fs_cli ]; then ln -sf "$PREFIX/bin/or_cli" /usr/bin/fs_cli; fi
 # The Call transcription installer, at a path the web interface can show.
 if [ -f "$SRC/packaging/install-transcription.sh" ]; then
-  install -d -m 0755 "$PREFIX/share/ringqswitch"
-  install -m 0755 "$SRC/packaging/install-transcription.sh" "$PREFIX/share/ringqswitch/install-transcription.sh"
+  install -d -m 0755 "$PREFIX/share/orswitch"
+  install -m 0755 "$SRC/packaging/install-transcription.sh" "$PREFIX/share/orswitch/install-transcription.sh"
 fi
 
 echo "==> creating $DATA"
@@ -71,7 +71,7 @@ if [ -f "$SRC/sounds/README.md" ] && [ ! -f "$DATA/sounds/README.md" ]; then
 fi
 chown -R ringq:ringq "$DATA"
 
-if [ -f "$CONF/ringqswitch.xml" ]; then
+if [ -f "$CONF/orswitch.xml" ]; then
   echo "==> keeping existing configuration in $CONF"
 else
   echo "==> installing configuration to $CONF"
@@ -81,7 +81,7 @@ else
   sed -i -e "s#\"../log/cdr.csv\"#\"$DATA/log/cdr.csv\"#" \
          -e "s#\"../sounds\"#\"$DATA/sounds\"#" \
          -e "s#\"../recordings\"#\"$DATA/recordings\"#" \
-         -e "s#\"../voicemail\"#\"$DATA/voicemail\"#" "$CONF/ringqswitch.xml"
+         -e "s#\"../voicemail\"#\"$DATA/voicemail\"#" "$CONF/orswitch.xml"
   # Config holds passwords: readable by the service user only.
   chown -R root:ringq "$CONF"
   find "$CONF" -type d -exec chmod 0750 {} +
@@ -90,34 +90,34 @@ fi
 
 if [ -d /run/systemd/system ]; then
   echo "==> installing systemd unit"
-  install -m 0644 "$SRC/packaging/ringqswitch.service" /etc/systemd/system/ringqswitch.service
+  install -m 0644 "$SRC/packaging/orswitch.service" /etc/systemd/system/orswitch.service
   systemctl daemon-reload
 else
-  echo "==> systemd not found; start manually: sudo -u ringq $PREFIX/bin/ringqswitch -conf $CONF"
+  echo "==> systemd not found; start manually: sudo -u ringq $PREFIX/bin/orswitch -conf $CONF"
 fi
 
 echo "==> validating configuration"
-if "$PREFIX/bin/ringqswitch" -conf "$CONF" -check; then
+if "$PREFIX/bin/orswitch" -conf "$CONF" -check; then
   CHECK=ok
 else
   CHECK=failed
 fi
 
-if grep -q '<param name="dsn" value="postgres' "$CONF/ringqswitch.xml" 2>/dev/null; then
+if grep -q '<param name="dsn" value="postgres' "$CONF/orswitch.xml" 2>/dev/null; then
   cat <<EOF
 
-RingQswitch installed (database mode: $CONF/ringqswitch.xml has a database address).
+ORswitch installed (database mode: $CONF/orswitch.xml has a database address).
 EOF
   if [ "$CHECK" = failed ]; then
     cat <<EOF
 The check above could not use that database. On a TEST server, create a test
-database and connect RingQswitch to it with one command:
+database and connect ORswitch to it with one command:
     sudo bash packaging/setup-test-db.sh
 Step-by-step guide: docs/STEP-BY-STEP.md
 EOF
   else
     cat <<EOF
-Next: sudo systemctl enable --now ringqswitch && sudo journalctl -u ringqswitch -f
+Next: sudo systemctl enable --now orswitch && sudo journalctl -u orswitch -f
 EOF
   fi
   exit 0
@@ -125,14 +125,14 @@ fi
 
 cat <<EOF
 
-RingQswitch installed. Next steps:
-  1. Edit $CONF/ringqswitch.xml:
+ORswitch installed. Next steps:
+  1. Edit $CONF/orswitch.xml:
        - default_password and event-socket-password (do not keep ChangeMe-*)
        - ext-sip-ip / ext-rtp-ip = this server's PUBLIC IP if it is behind NAT (all clouds)
-  2. sudo ringqswitch -conf $CONF -check
-  3. sudo systemctl enable --now ringqswitch
-  4. sudo journalctl -u ringqswitch -f
-  5. sudo rq_cli -x status   (sudo rq_cli: the live console)
+  2. sudo orswitch -conf $CONF -check
+  3. sudo systemctl enable --now orswitch
+  4. sudo journalctl -u orswitch -f
+  5. sudo or_cli -x status   (sudo or_cli: the live console)
 To use a PostgreSQL database instead of XML files (test database in one
 command: sudo bash packaging/setup-test-db.sh), see docs/STEP-BY-STEP.md.
 EOF

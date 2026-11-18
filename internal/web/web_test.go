@@ -146,7 +146,7 @@ func newRigWith(t *testing.T, settings string) *rig {
     <param name="data-dir" value="%[1]s"/>
   </web>
 </configuration>`, dir, strings.ReplaceAll(dsn, "&", "&amp;"), settings)
-	if err := os.WriteFile(filepath.Join(dir, "ringqswitch.xml"), []byte(main), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, "orswitch.xml"), []byte(main), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	cfg, err := config.Load(dir)
@@ -154,7 +154,7 @@ func newRigWith(t *testing.T, settings string) *rig {
 		t.Fatal(err)
 	}
 	log := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelWarn}))
-	if os.Getenv("RQ_TEST_DEBUG") != "" {
+	if os.Getenv("OR_TEST_DEBUG") != "" {
 		log = slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelDebug}))
 	}
 	store, err := db.Open(ctx, cfg.Database, log)
@@ -301,7 +301,7 @@ func TestLoginAndProtection(t *testing.T) {
 	}
 	r.mustCall("POST", "login", map[string]string{"user": "admin", "password": "Web-Test-Pass"})
 	me := r.mustCall("GET", "me", nil)
-	if me["brand"] != "RingQswitch" || me["database"] != true {
+	if me["brand"] != "ORswitch" || me["database"] != true {
 		t.Fatalf("me: %v", me)
 	}
 	if code := r.call("POST", "system/reload", map[string]string{}, &out, "no X-RQ"); code != http.StatusForbidden {

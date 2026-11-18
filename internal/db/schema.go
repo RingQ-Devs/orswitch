@@ -11,12 +11,12 @@ import (
 //go:embed ringq-schema.sql
 var ringqSchema string
 
-// RingQSchema is the DDL of the RingQ tables RingQswitch uses.
+// RingQSchema is the DDL of the RingQ tables ORswitch uses.
 func RingQSchema() string { return ringqSchema }
 
 var reCreate = regexp.MustCompile(`(?is)^\s*(?:--[^\n]*\n\s*)*create\s+(table|index)\s+(\w+)(?:\s+on\s+(\w+))?`)
 
-// CreateMissingTables creates the RingQ tables RingQswitch uses
+// CreateMissingTables creates the RingQ tables ORswitch uses
 // that do not exist yet (a new database gets all of them; existing tables
 // are never changed). It returns the names of the tables it created.
 func (s *Store) CreateMissingTables(ctx context.Context) ([]string, error) {
@@ -42,7 +42,7 @@ func (s *Store) CreateMissingTables(ctx context.Context) ([]string, error) {
 	return created, s.loadSchema(ctx)
 }
 
-// RingQswitch's own tables, for features RingQ has no table for (or
+// ORswitch's own tables, for features RingQ has no table for (or
 // whose RingQ tables have unclear semantics). They are created when missing
 // and never altered or dropped; RingQ tables are not touched.
 var rqSchema = []string{
@@ -334,7 +334,7 @@ var rqSchema = []string{
 		fax_send_channels numeric, fax_description text, accountcode text,
 		insert_date timestamptz, insert_user uuid, update_date timestamptz, update_user uuid, fax_send_greeting text)`,
 	// eFax: the RingQ fax engine's own tables (same columns, so it and
-	// RingQswitch can share them): every fax sent or received, and each
+	// ORswitch can share them): every fax sent or received, and each
 	// domain's station id and page header.
 	`create table if not exists fax_jobs (
 		id uuid primary key,
@@ -511,7 +511,7 @@ var rqSchema = []string{
 		reason text,
 		metadata jsonb)`,
 	`create index if not exists idx_audit_time on security_audit_log (occurred_at)`,
-	// Server and domain settings of RingQswitch (scope: "server" or a
+	// Server and domain settings of ORswitch (scope: "server" or a
 	// domain uuid): SIP Guard, global IP restriction, web auto logout.
 	`create table if not exists rq_settings (
 		scope text not null,
@@ -593,7 +593,7 @@ var rqSchema = []string{
 		updated_at timestamptz)`,
 }
 
-// EnsureSchema creates RingQswitch's own tables when they are missing and
+// EnsureSchema creates ORswitch's own tables when they are missing and
 // refreshes the cached schema. Failures (e.g. no CREATE permission) are
 // returned; features using those tables are then unavailable.
 func (s *Store) EnsureSchema(ctx context.Context) error {
@@ -615,5 +615,5 @@ func (s *Store) EnsureSchema(ctx context.Context) error {
 type schemaError struct{ errs []string }
 
 func (e *schemaError) Error() string {
-	return "creating RingQswitch tables: " + strings.Join(e.errs, "; ")
+	return "creating ORswitch tables: " + strings.Join(e.errs, "; ")
 }
