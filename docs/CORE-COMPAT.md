@@ -1,6 +1,6 @@
 # RingQ Core compatibility
 
-What `ringq_core` (PHP + Node services) expects from its switch, and how RingQswitch
+What `ringq_core` (PHP + Node services) expects from its switch, and how ORswitch
 covers it. Produced by scanning Core's source (`origin/main` at 4019645) for every event
 socket (ESL) command, event and dialplan application it uses, then checking each against
 this switch and exercising the new pieces with Core's own `modesl` client.
@@ -96,12 +96,12 @@ converted per stream. The switch's own audio (IVR, voicemail, tones) is sent as 
 
 The scan reads Core's `node/*.js` and `app/**/*.php`, extracts `conn.api(...)`, `bgapi`,
 `promisifiedApi(...)`, `fs_cli -x`, event names and `<action application=...>`, and compares them
-with `rq_cli -x help` and `rq_cli -x "show applications"` of a running switch.
+with `or_cli -x help` and `or_cli -x "show applications"` of a running switch.
 
 ## Ring push (mod_ringq equivalent)
 
 The RingQ backend wakes a phone's app with `node/ringPush.js` and the FreeSWITCH module `mod_ringq`.
-RingQswitch does the module's part itself (`internal/core/ringpush.go`):
+ORswitch does the module's part itself (`internal/core/ringpush.go`):
 
 - Enabled per domain by the RingQ setting `ringq / ring_push_mode = wake` (v_domain_settings, else
   v_default_settings); `module_exists mod_ringq` answers true so ringPush.js takes over from the old push code.

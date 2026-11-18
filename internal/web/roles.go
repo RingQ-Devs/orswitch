@@ -15,7 +15,7 @@ import (
 //	    a password is needed when the extension has none yet
 func (s *Server) rolesAPI(ctx context.Context, w http.ResponseWriter, r *http.Request, p *principal, dom domainRow, parts []string) error {
 	if !s.store.HasTable("rq_web_users") {
-		return badRequest("the database has no rq_web_users table (restart RingQswitch to create it)")
+		return badRequest("the database has no rq_web_users table (restart ORswitch to create it)")
 	}
 	id := part(parts, 0)
 	switch {

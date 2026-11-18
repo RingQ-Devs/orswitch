@@ -963,7 +963,7 @@ func saveDialplan(ctx context.Context, tx pgx.Tx, st *db.Store, r *resource, dom
 	}
 	return upsertDialplan(ctx, tx, st, dialplanRow{uuid: row["dialplan_uuid"], domainUUID: dom.uuid, context: ctxName,
 		name: row[r.nameCol], number: number, order: order, enabled: enabled, xml: r.dialplan(dom, row),
-		description: "Managed by RingQswitch (" + r.name + ")"})
+		description: "Managed by ORswitch (" + r.name + ")"})
 }
 
 // didFaxTarget marks a DID transferred to a fax extension of its domain,

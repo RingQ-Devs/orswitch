@@ -1,11 +1,11 @@
-// Command rq_cli is the RingQswitch console: it
-// connects to the event socket (the password is read from ringqswitch.xml,
+// Command or_cli is the ORswitch console: it
+// connects to the event socket (the password is read from orswitch.xml,
 // so none needs typing), shows the live log in colour and runs commands.
 //
-//	rq_cli                       console with the live log (debug)
-//	rq_cli -x "show channels"    run one command and exit
-//	rq_cli -l info               console with the log from info up
-//	rq_cli -q                    console without the log
+//	or_cli                       console with the live log (debug)
+//	or_cli -x "show channels"    run one command and exit
+//	or_cli -l info               console with the log from info up
+//	or_cli -q                    console without the log
 package main
 
 import (
@@ -43,10 +43,10 @@ var colours = map[int]string{0: "\x1b[0m", 1: "\x1b[31m", 2: "\x1b[31m", 3: "\x1
 const reset = "\x1b[0m"
 
 func main() {
-	host := flag.String("H", "", "event socket host (default: from ringqswitch.xml, else 127.0.0.1)")
-	port := flag.Int("P", 0, "event socket port (default: from ringqswitch.xml, else 8021)")
-	password := flag.String("p", os.Getenv("RQ_ESL_PASSWORD"), "event socket password (default: $RQ_ESL_PASSWORD, else read from ringqswitch.xml)")
-	confDir := flag.String("conf", "", "configuration directory to read the event socket address and password from (default /etc/ringqswitch)")
+	host := flag.String("H", "", "event socket host (default: from orswitch.xml, else 127.0.0.1)")
+	port := flag.Int("P", 0, "event socket port (default: from orswitch.xml, else 8021)")
+	password := flag.String("p", os.Getenv("OR_ESL_PASSWORD"), "event socket password (default: $OR_ESL_PASSWORD, else read from orswitch.xml)")
+	confDir := flag.String("conf", "", "configuration directory to read the event socket address and password from (default /etc/orswitch)")
 	execute := flag.String("x", "", "execute one command and exit")
 	level := flag.String("l", "debug", "log level to show: debug, info, notice, warning, err (or 7..0)")
 	quiet := flag.Bool("q", false, "do not show the log")
@@ -83,18 +83,18 @@ func main() {
 	if *port != 0 {
 		p = *port
 	}
-	// As "fs_cli" (a symlink to this program) a user who cannot read ringqswitch.xml, such as
+	// As "fs_cli" (a symlink to this program) a user who cannot read orswitch.xml, such as
 	// the web server, gets FreeSWITCH's default password, as fs_cli does without a configuration.
 	if pw == "" && strings.HasPrefix(filepath.Base(os.Args[0]), "fs_cli") {
 		pw = "ClueCon"
 	}
 	if pw == "" {
-		fmt.Fprintln(os.Stderr, "rq_cli: no event socket password: run as root (it is read from /etc/ringqswitch/ringqswitch.xml) or give -p")
+		fmt.Fprintln(os.Stderr, "or_cli: no event socket password: run as root (it is read from /etc/orswitch/orswitch.xml) or give -p")
 		os.Exit(1)
 	}
 	c, err := esl.Dial(net.JoinHostPort(h, strconv.Itoa(p)), pw)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "rq_cli: cannot connect to RingQswitch at %s:%d: %v\n", h, p, err)
+		fmt.Fprintf(os.Stderr, "or_cli: cannot connect to ORswitch at %s:%d: %v\n", h, p, err)
 		os.Exit(1)
 	}
 	defer c.Close()
@@ -102,7 +102,7 @@ func main() {
 	if *execute != "" {
 		out, err := c.API(*execute)
 		if err != nil {
-			fmt.Fprintln(os.Stderr, "rq_cli:", err)
+			fmt.Fprintln(os.Stderr, "or_cli:", err)
 			os.Exit(1)
 		}
 		fmt.Print(out)
@@ -119,7 +119,7 @@ func main() {
 	version, _ := c.API("version")
 	hostname := strings.TrimSpace(apiOr(c, "hostname", h))
 	banner(strings.TrimSpace(version), hostname, h, p)
-	prompt := "ringqswitch@" + hostname + "> "
+	prompt := "orswitch@" + hostname + "> "
 
 	con := &console{prompt: prompt, colour: colour, tty: isTerminal()}
 	if !*quiet {
@@ -190,7 +190,7 @@ func main() {
 		}
 		select {
 		case <-c.Closed():
-			fmt.Println("Disconnected from RingQswitch.")
+			fmt.Println("Disconnected from ORswitch.")
 			return
 		default:
 		}
@@ -206,21 +206,21 @@ func apiOr(c *esl.Client, cmd, def string) string {
 }
 
 // fromConfig reads event-socket-listen and event-socket-password from
-// ringqswitch.xml (the service's own configuration).
+// orswitch.xml (the service's own configuration).
 func fromConfig(dir string) (addr, password string) {
 	dirs := []string{dir}
 	if dir == "" {
-		dirs = []string{"/etc/ringqswitch", "./conf"}
+		dirs = []string{"/etc/orswitch", "./conf"}
 	}
 	for _, d := range dirs {
-		if _, err := os.Stat(d + "/ringqswitch.xml"); err != nil {
+		if _, err := os.Stat(d + "/orswitch.xml"); err != nil {
 			continue
 		}
 		if cfg, err := config.Load(d); err == nil {
 			return cfg.Settings.ESLListen, cfg.Settings.ESLPassword
 		}
 		// The full configuration did not load: read the two settings.
-		data, err := os.ReadFile(d + "/ringqswitch.xml")
+		data, err := os.ReadFile(d + "/orswitch.xml")
 		if err != nil {
 			continue
 		}
@@ -246,7 +246,7 @@ func banner(version, hostname, h string, p int) {
 	}
 	row("")
 	fmt.Println(line)
-	row("RingQswitch console")
+	row("ORswitch console")
 	row(fmt.Sprintf("%s on %s, event socket %s:%d", version, hostname, h, p))
 	fmt.Println(line)
 	fmt.Println()
@@ -268,9 +268,9 @@ func help() {
                     notice (5), warning (4), err (3), crit (2)
   /nolog            stop showing the log
   /events [names]   show events too (default: plain ALL), /noevents to stop
-  /exit, /quit, /bye, Ctrl+D   leave rq_cli (RingQswitch keeps running)
+  /exit, /quit, /bye, Ctrl+D   leave or_cli (ORswitch keeps running)
 
-Everything else is sent to RingQswitch, for example:
+Everything else is sent to ORswitch, for example:
   status            show channels     show calls        show registrations
   sip status        sip status profile internal reg     sip status gateway NAME
   reloadxml         uuid_kill UUID    originate user/1000 &echo()

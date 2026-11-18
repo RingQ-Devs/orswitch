@@ -1,7 +1,7 @@
-// Package web is RingQswitch's administration interface: an HTTPS server
+// Package web is ORswitch's administration interface: an HTTPS server
 // with a single-page application (embedded) and a JSON API. Everything it
 // configures is stored in the PostgreSQL database (RingQ tables
-// plus RingQswitch's rq_* tables), so the RingQ portal and this interface
+// plus ORswitch's rq_* tables), so the RingQ portal and this interface
 // can be used side by side. After each change the switch reloads.
 package web
 

@@ -141,7 +141,7 @@ func (s *Server) startPhone(c *wsClient, offerRaw json.RawMessage, gen int64) (*
 	if err != nil {
 		return nil, err
 	}
-	track, err := webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{MimeType: webrtc.MimeTypePCMU, ClockRate: 8000, Channels: 1}, "audio", "ringqswitch")
+	track, err := webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{MimeType: webrtc.MimeTypePCMU, ClockRate: 8000, Channels: 1}, "audio", "orswitch")
 	if err != nil {
 		pc.Close()
 		return nil, err

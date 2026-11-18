@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  RingQswitch core configuration.
+  ORswitch core configuration.
 
   Every file under conf/ is pre-processed before parsing: $${name} is replaced
   with the global variable "name" defined below. Built-in variables:
@@ -39,7 +39,7 @@
     <param name="rtp-start-port" value="16384"/>
     <param name="rtp-end-port" value="32768"/>
     <param name="rtp-timeout" value="120"/>             <!-- hang up calls with no RTP for N seconds (0 = off) -->
-    <!-- Codecs RingQswitch can terminate itself (IVR, playback, echo...).
+    <!-- Codecs ORswitch can terminate itself (IVR, playback, echo...).
          Bridged calls pass any codec through untouched. -->
     <param name="codec-prefs" value="PCMU,PCMA"/>   <!-- add G722 for HD voice: PCMU,PCMA,G722 -->
     <param name="sip-tls-verify" value="true"/>         <!-- verify the certificate of TLS trunks (false: trust any) -->
@@ -57,7 +57,7 @@
     <param name="max-sessions" value="1000"/>
     <param name="call-timeout" value="60"/>             <!-- default ring timeout for bridge -->
 
-    <!-- Event socket (ESL style control protocol) used by rq_cli. -->
+    <!-- Event socket (ESL style control protocol) used by or_cli. -->
     <param name="event-socket-listen" value="127.0.0.1:8021"/>
     <param name="event-socket-password" value="ChangeMe-ESL"/>
 
@@ -70,9 +70,9 @@
     <!-- <param name="fax-dir" value="../fax"/> -->
     <!-- Call transcription (web interface → Settings → Call transcription;
          packaging/install-transcription.sh installs the recogniser). Found
-         by itself in /usr/local/bin and /usr/local/share/ringqswitch/speech. -->
+         by itself in /usr/local/bin and /usr/local/share/orswitch/speech. -->
     <!-- <param name="transcribe-command" value="/usr/local/bin/rq-speech"/> -->
-    <!-- <param name="transcribe-model" value="/usr/local/share/ringqswitch/speech/ggml-small.bin"/> -->
+    <!-- <param name="transcribe-model" value="/usr/local/share/orswitch/speech/ggml-small.bin"/> -->
     <!-- <param name="transcribe-threads" value="4"/> -->      <!-- CPU threads per call (default: half the CPUs, at most 4) -->
     <!-- <param name="transcribe-workers" value="1"/> -->      <!-- calls transcribed at the same time -->
     <!-- <param name="transcribe-min-seconds" value="5"/> -->  <!-- shorter calls (billsec) are not transcribed -->
@@ -81,7 +81,7 @@
          holding the same ggml-<model>.bin files works too). -->
     <!-- <param name="transcribe-model-url" value="https://models.example.com/speech"/> -->
     <!-- Live transcription during calls (Settings → Call transcription):
-         RingQswitch starts rq-speech-server (installed next to rq-speech)
+         ORswitch starts rq-speech-server (installed next to rq-speech)
          on 127.0.0.1 when a call is first written down live. To use a
          live recogniser started elsewhere instead, give its address. -->
     <!-- <param name="transcribe-live-url" value="http://127.0.0.1:8178"/> -->
@@ -117,7 +117,7 @@
   <database>
     <!-- <param name="dsn" value="postgres://DBUSER:PASSWORD@127.0.0.1:5432/DBNAME?sslmode=disable"/> -->
     <!-- <param name="cdr-tables" value="v_xml_cdr"/> -->
-    <!-- Other database users that may read and change RingQswitch's own
+    <!-- Other database users that may read and change ORswitch's own
          tables (rq_*), e.g. the user your database tool signs in with. The database
          owner and the owner of the RingQ tables always may. -->
     <!-- <param name="grant-to" value="ringq"/> -->

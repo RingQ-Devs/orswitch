@@ -352,7 +352,7 @@ PAGES['ai-settings'] = async () => {
   base.value = st.base_url || '';
   const result = h('div', { class: 'ai-test' });
   const state = () => st.has_key ? [badge('Key saved', 'green'), ' ', h('span', { class: 'muted small' }, st.key_hint)]
-    : st.env_key ? [badge('Server key', 'blue'), ' ', h('span', { class: 'muted small' }, t('The server\'s RQ_AI_API_KEY is used.'))]
+    : st.env_key ? [badge('Server key', 'blue'), ' ', h('span', { class: 'muted small' }, t('The server\'s OR_AI_API_KEY is used.'))]
       : st.key_lost ? [badge('Key unreadable', 'red'), ' ', h('span', { class: 'muted small' }, t('The server\'s key file changed: enter the API key again.'))]
         : [badge('No key', 'amber'), ' ', h('span', { class: 'muted small' }, t('AI agents cannot answer calls until a key is saved.'))];
   const test = async (btn) => {

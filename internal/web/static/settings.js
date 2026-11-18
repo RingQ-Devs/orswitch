@@ -54,17 +54,17 @@ PAGES.sipprofiles = async () => {
       tls: h('input', { type: 'checkbox', disabled: true }),
     };
     f.protocol.value = p ? p.protocol : 'udp,tcp';
-    // The main port comes from ringqswitch.xml (sip-port): the rest can change.
+    // The main port comes from orswitch.xml (sip-port): the rest can change.
     const mainPort = p && p.main;
     if (mainPort) f.port.disabled = true;
     const field = (label, el, help, full) => h('div', { class: 'field' + (full ? ' full' : '') }, h('label', null, label), el, help ? h('div', { class: 'help' }, help) : null);
     modal(p ? 'Edit SIP profile ' + p.name : 'Add SIP profile', h('div', { class: 'form' },
-      field('Profile name', f.name), field('Port', f.port, mainPort ? 'The main port: change it with sip-port in /etc/ringqswitch/ringqswitch.xml and restart.' : 'e.g. 5080 for carriers (the "external" profile); open it in the firewall.'),
+      field('Profile name', f.name), field('Port', f.port, mainPort ? 'The main port: change it with sip-port in /etc/orswitch/orswitch.xml and restart.' : 'e.g. 5080 for carriers (the "external" profile); open it in the firewall.'),
       field('Protocol', f.protocol), field('SIP IP', f.sip_ip, 'Empty: all addresses of this server.'),
-      field('Ext. IP', f.ext_sip_ip, 'Kept for RingQ; RingQswitch always gives out this server\'s own address.'),
+      field('Ext. IP', f.ext_sip_ip, 'Kept for RingQ; ORswitch always gives out this server\'s own address.'),
       field('Description', f.description),
       h('div', { class: 'field' }, h('label', { class: 'switch' }, f.enabled, 'Enabled: open this port')),
-      h('div', { class: 'field' }, h('label', { class: 'switch muted' }, f.tls, 'TLS (not supported by RingQswitch yet)'))),
+      h('div', { class: 'field' }, h('label', { class: 'switch muted' }, f.tls, 'TLS (not supported by ORswitch yet)'))),
     p ? 'Save' : 'Add profile', async () => {
       const inDB = p && p.uuid; // the main port without a database row gets one
       await api(inDB ? 'PUT' : 'POST', 'sipprofiles' + (inDB ? '/' + p.uuid : ''), { name: f.name.value, description: f.description.value,
@@ -75,7 +75,7 @@ PAGES.sipprofiles = async () => {
   };
   const ipCell = (p) => {
     if (!p.sip_ip) return h('span', { class: 'mono' }, p.bind_ip || 'all addresses');
-    return h('span', { class: 'mono' }, p.sip_ip, p.ip_here ? null : h('span', { class: 'warn-ic', title: 'Not an address of this server: RingQswitch listens on ' + (p.bind_ip || 'all addresses') + ' instead' }, icon('info', 14)));
+    return h('span', { class: 'mono' }, p.sip_ip, p.ip_here ? null : h('span', { class: 'warn-ic', title: 'Not an address of this server: ORswitch listens on ' + (p.bind_ip || 'all addresses') + ' instead' }, icon('info', 14)));
   };
   fill(main,
     h('div', { class: 'page-head' }, h('h1', null, 'SIP Profile ', h('span', { class: 'info-dot', title: 'Each enabled profile opens a SIP port (standard: internal 5060, external 5080)' }, icon('info', 15)),
@@ -96,7 +96,7 @@ PAGES.sipprofiles = async () => {
       { label: 'Port', render: (p) => h('span', { class: 'mono' }, String(p.port)) },
       { label: 'Protocol', render: (p) => h('span', { class: 'mono' }, p.protocol) },
       { label: 'Ext. IP', render: (p) => h('span', { class: 'mono', title: 'Given out to phones and carriers: ' + p.advertise }, p.ext_sip_ip || p.advertise || '—') },
-      { label: 'TLS', render: (p) => p.tls ? h('span', { class: 'muted', title: 'Set in the database; RingQswitch does not serve SIP over TLS yet' }, '✓ (not served)') : h('span', { class: 'muted' }, '—') },
+      { label: 'TLS', render: (p) => p.tls ? h('span', { class: 'muted', title: 'Set in the database; ORswitch does not serve SIP over TLS yet' }, '✓ (not served)') : h('span', { class: 'muted' }, '—') },
       { label: 'Status', render: (p) => !p.enabled ? badge('Disabled') : p.listening ? badge(p.main ? 'Listening (main port)' : 'Listening', 'green') : badge(p.error || 'Not open', 'red') },
       { label: 'Actions', actions: 1, render: (p) => h('div', { class: 'btn-group' },
           data.database ? h('button', { class: 'icon-btn', title: 'Edit', 'aria-label': 'Edit ' + p.name, onclick: () => edit(p) }, icon('edit', 16)) : null,
@@ -140,7 +140,7 @@ PAGES.network = async () => {
     h('div', { class: 'panel' }, h('h2', null, 'Firewall'),
       h('p', null, 'These ports must be open on the server\'s firewall and in your cloud provider\'s firewall if you use one:'),
       h('pre', { class: 'code-block' }, rules.join('\n')),
-      h('p', { class: 'muted small' }, 'Addresses and ports are set in /etc/ringqswitch/ringqswitch.xml (sip-ip, ext-sip-ip, rtp-start-port…) and SIP profiles.')));
+      h('p', { class: 'muted small' }, 'Addresses and ports are set in /etc/orswitch/orswitch.xml (sip-ip, ext-sip-ip, rtp-start-port…) and SIP profiles.')));
 };
 
 // ---------------------------------------------------------------------------

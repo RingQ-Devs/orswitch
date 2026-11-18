@@ -22,8 +22,8 @@ func (l Local) addrType() string {
 
 func (l Local) session() *Session {
 	return &Session{
-		Origin:   Origin{Username: "RingQswitch", SessionID: l.SessionID, Version: l.Version, NetType: "IN", AddrType: l.addrType(), Address: l.IP},
-		Name:     "RingQswitch",
+		Origin:   Origin{Username: "ORswitch", SessionID: l.SessionID, Version: l.Version, NetType: "IN", AddrType: l.addrType(), Address: l.IP},
+		Name:     "ORswitch",
 		ConnAddr: l.IP,
 		ConnType: l.addrType(),
 	}

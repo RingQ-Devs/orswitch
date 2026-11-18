@@ -13,7 +13,7 @@ import (
 
 // Hotel front desk: the domain's extensions are the rooms. A guest checks
 // in to a room (rq_hotel_stays) and out again; a checked-in guest can have
-// a wake-up call (rq_wakeup_calls): at its time RingQswitch rings the room
+// a wake-up call (rq_wakeup_calls): at its time ORswitch rings the room
 // and plays the wake-up sound, and tries again when nobody answers.
 //
 //	GET    /api/d/{domain}/hotel                     rooms, guests, wake-up calls
@@ -35,7 +35,7 @@ var reGuestName = regexp.MustCompile(`^[\p{L}\p{M}0-9 .,'’-]{0,60}$`)
 
 func (s *Server) hotelAPI(ctx context.Context, w http.ResponseWriter, r *http.Request, p *principal, dom domainRow, parts []string) error {
 	if !s.store.HasTable("rq_hotel_stays") || !s.store.HasTable("rq_wakeup_calls") {
-		return badRequest("the hotel tables are missing: restart RingQswitch once to add them")
+		return badRequest("the hotel tables are missing: restart ORswitch once to add them")
 	}
 	switch {
 	case len(parts) == 0 && r.Method == http.MethodGet:

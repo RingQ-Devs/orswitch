@@ -1,4 +1,4 @@
-// Package esl implements the RingQswitch event socket: a line based TCP
+// Package esl implements the ORswitch event socket: a line based TCP
 // control protocol (auth, api, bgapi, event, noevents, exit).
 package esl
 

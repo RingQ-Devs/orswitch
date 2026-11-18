@@ -53,7 +53,7 @@ type harness struct {
 	sw   *core.Core
 	addr netip.AddrPort
 	dir  string
-	logs *logbus.Bus // what rq_cli follows ("log 7")
+	logs *logbus.Bus // what or_cli follows ("log 7")
 }
 
 func newHarness(t *testing.T, extraSettings string) *harness {
@@ -90,7 +90,7 @@ func newHarnessWith(t *testing.T, extraSettings, users, dp string, mutate func(*
   </settings>
 </configuration>`, base, base+198, filepath.Join(dir, "cdr.csv"), dir, extraSettings)
 	for path, content := range map[string]string{
-		"ringqswitch.xml":      main,
+		"orswitch.xml":         main,
 		"directory/users.xml":  users,
 		"dialplan/default.xml": dp,
 	} {
@@ -110,7 +110,7 @@ func newHarnessWith(t *testing.T, extraSettings, users, dp string, mutate func(*
 		mutate(cfg)
 	}
 	level := slog.LevelWarn
-	if os.Getenv("RQ_TEST_DEBUG") != "" {
+	if os.Getenv("OR_TEST_DEBUG") != "" {
 		level = slog.LevelDebug
 	}
 	logs := logbus.New()
@@ -394,7 +394,7 @@ func TestHoldReinvite(t *testing.T) {
 	if addr != call.RemoteRTP {
 		t.Fatal("our media address must not change on re-INVITE")
 	}
-	if !bytes.Contains(resp.Body, []byte("o=RingQswitch")) || bytes.Contains(resp.Body, []byte(" 1 IN IP4")) {
+	if !bytes.Contains(resp.Body, []byte("o=ORswitch")) || bytes.Contains(resp.Body, []byte(" 1 IN IP4")) {
 		t.Fatalf("SDP version must increase when the answer changes:\n%s", resp.Body)
 	}
 	_ = call.Ack()
@@ -909,7 +909,7 @@ func TestSIPProfilePort(t *testing.T) {
 }
 
 // TestEventSocketLog: "log 7" streams console log lines (what
-// rq_cli shows): the new channel, the dialplan trace, the
+// or_cli shows): the new channel, the dialplan trace, the
 // applications, the hangup; "log 5" leaves out debug; "nolog" stops.
 func TestEventSocketLog(t *testing.T) {
 	h := newHarness(t, "")

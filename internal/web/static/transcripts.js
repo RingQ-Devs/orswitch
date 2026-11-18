@@ -292,10 +292,10 @@ PAGES.transcription = async () => {
         : null,
       eng.ok ? h('p', null, 'Live transcription: ', liveState()) : null,
       eng.ok && data.live_server ? liveTip() : null,
-      eng.ok && !data.live_server ? h('pre', { class: 'tr-cmd' }, 'sudo bash /usr/local/share/ringqswitch/install-transcription.sh') : null,
+      eng.ok && !data.live_server ? h('pre', { class: 'tr-cmd' }, 'sudo bash /usr/local/share/orswitch/install-transcription.sh') : null,
       eng.ok ? null : h('div', null, h('p', null, badge('Not installed', 'amber'), ' ', eng.error),
           h('p', null, 'Install it once on the server (it downloads and builds the speech recogniser and a speech model, about 5 minutes):'),
-          h('pre', { class: 'tr-cmd' }, 'sudo bash /usr/local/share/ringqswitch/install-transcription.sh'),
+          h('pre', { class: 'tr-cmd' }, 'sudo bash /usr/local/share/orswitch/install-transcription.sh'),
           h('p', { class: 'muted small' }, 'Then this page shows "Ready" within a minute (no restart needed). The script is also in the source folder: packaging/install-transcription.sh.')));
   };
   const drawModels = () => {
@@ -350,7 +350,7 @@ PAGES.transcription = async () => {
     if (busy) refresh().catch(() => {});
   });
   fill(main, pageHead('Call transcription'),
-    h('p', { class: 'page-intro' }, 'After each call, RingQswitch writes down who said what (Speaker A, the caller; Speaker B, who answered) and how they felt (sentiment). ' +
+    h('p', { class: 'page-intro' }, 'After each call, ORswitch writes down who said what (Speaker A, the caller; Speaker B, who answered) and how they felt (sentiment). ' +
       'The transcript opens from the icon in Call history and Queue calls. Everything runs on this server: no call audio leaves it.'),
     h('div', { class: 'panel tr-settings' },
       h('div', { class: 'tr-row' }, h('label', { class: 'tgl' }, enabled, h('span')), h('div', null, h('b', null, 'Transcribe calls'),

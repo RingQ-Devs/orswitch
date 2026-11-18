@@ -359,7 +359,7 @@ func TestAIAgentCall(t *testing.T) {
 
 // Without the service (no key) the agent's fallback takes the call.
 func TestAIAgentFallback(t *testing.T) {
-	t.Setenv("RQ_AI_API_KEY", "")
+	t.Setenv("OR_AI_API_KEY", "")
 	t.Setenv("OPENAI_API_KEY", "")
 	r := newRig(t)
 	r.mustCall("POST", "login", map[string]string{"user": "admin", "password": "Web-Test-Pass"})

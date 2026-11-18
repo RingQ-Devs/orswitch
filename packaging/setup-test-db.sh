@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# Prepare a TEST database for RingQswitch on this server and point
-# RingQswitch at it. Safe to run on a test machine: it never touches any
+# Prepare a TEST database for ORswitch on this server and point
+# ORswitch at it. Safe to run on a test machine: it never touches any
 # other database.
 #
 #   sudo bash packaging/setup-test-db.sh
-#       Installs PostgreSQL if needed, creates database "ringqswitch" with the
-#       tables RingQswitch uses and sample data (extensions 1000-1004, a ring
+#       Installs PostgreSQL if needed, creates database "orswitch" with the
+#       tables ORswitch uses and sample data (extensions 1000-1004, a ring
 #       group, an IVR, feature codes, AUX codes), switches on the web
-#       interface (https://<server>:8443), configures /etc/ringqswitch and
+#       interface (https://<server>:8443), configures /etc/orswitch and
 #       restarts the service. Prints the passwords at the end (also saved in
-#       /root/ringqswitch-test.txt).
+#       /root/orswitch-test.txt).
 #
 #   sudo bash packaging/setup-test-db.sh --db ringq_copy --load /root/ringq.sql
 #       Same, but loads a dump of your real RingQ database instead of the
@@ -18,12 +18,12 @@
 #       leave it on).
 #
 # Options:
-#   --db NAME             database name (default ringqswitch)
-#   --db-user NAME        database user (default ringqswitch)
+#   --db NAME             database name (default orswitch)
+#   --db-user NAME        database user (default orswitch)
 #   --load FILE           load this SQL dump (plain format) instead of the built-in tables
 #   --sample              also add the sample data when using --load
 #   --ext-password PW     password of the sample extensions (default: the one in
-#                         /root/ringqswitch-test.txt from an earlier run, else random)
+#                         /root/orswitch-test.txt from an earlier run, else random)
 #   --web-password PW     web interface password for user "admin" (default: random)
 #   --web-port PORT       web interface port (default 8443; 0 = no web interface)
 #   --domain NAME         domain of the sample data (default test.ringq.local)
@@ -34,8 +34,8 @@
 #   --no-restart          configure only, do not restart the service
 set -euo pipefail
 
-DB=ringqswitch
-DBUSER=ringqswitch
+DB=orswitch
+DBUSER=orswitch
 WEBPW=""
 WEBPORT=8443
 LOAD=""
@@ -47,7 +47,7 @@ PUBLIC_IP=""
 KEEPGW=0
 RESET=0
 RESTART=1
-CONF=/etc/ringqswitch
+CONF=/etc/orswitch
 SRC="$(cd "$(dirname "$0")/.." && pwd)"
 
 die() { echo "error: $*" >&2; exit 1; }
@@ -83,16 +83,16 @@ if [ -n "$LOAD" ]; then
   [ -f "$LOAD" ] || die "--load: file $LOAD not found"
   LOAD="$(cd "$(dirname "$LOAD")" && pwd)/$(basename "$LOAD")"
 fi
-command -v ringqswitch >/dev/null || die "RingQswitch is not installed yet: run 'make build && sudo make install' first"
+command -v orswitch >/dev/null || die "ORswitch is not installed yet: run 'make build && sudo make install' first"
 EXAMPLE="$SRC/conf/examples/ringq-postgres.xml"
-[ -f "$EXAMPLE" ] || die "$EXAMPLE not found (run this script from the RingQswitch folder)"
-ringqswitch -version | grep -qE ' 0\.([3-9]|[1-9][0-9])\.' || die "the installed ringqswitch is older than this script: run 'make build && sudo make install' first"
+[ -f "$EXAMPLE" ] || die "$EXAMPLE not found (run this script from the ORswitch folder)"
+orswitch -version | grep -qE ' 0\.([3-9]|[1-9][0-9])\.' || die "the installed orswitch is older than this script: run 'make build && sudo make install' first"
 
 randhex() { local x; x=$(head -c 32 /dev/urandom | od -An -tx1 | tr -d ' \n'); echo "${x:0:$1}"; }
 DBPW="$(randhex 24)"
-if [ -z "$EXTPW" ] && [ -f /root/ringqswitch-test.txt ]; then
+if [ -z "$EXTPW" ] && [ -f /root/orswitch-test.txt ]; then
   # Keep the phones of an earlier test working.
-  EXTPW=$(grep -m1 -E '^ +Password +: ' /root/ringqswitch-test.txt | awk '{print $3}' || true)
+  EXTPW=$(grep -m1 -E '^ +Password +: ' /root/orswitch-test.txt | awk '{print $3}' || true)
 fi
 if [ -z "$EXTPW" ]; then EXTPW="Rq$(randhex 8)"; fi
 [[ "$EXTPW" =~ ^[A-Za-z0-9._@-]+$ ]] || die "--ext-password: letters, digits and . _ @ - only"
@@ -101,7 +101,7 @@ if [ -z "$WEBPW" ]; then WEBPW="Rq$(randhex 12)"; fi
 
 # Run psql as the postgres superuser, from a directory it can read.
 pg() { (cd / && runuser -u postgres -- psql -X -q -v ON_ERROR_STOP=1 "$@"); }
-# Run psql as the RingQswitch database user.
+# Run psql as the ORswitch database user.
 pgdb() { PGPASSWORD="$DBPW" psql -X -q -h 127.0.0.1 -U "$DBUSER" -d "$DB" "$@"; }
 
 # ---------------------------------------------------------------------------
@@ -133,7 +133,7 @@ step "Database $DB and user $DBUSER"
 if [ -n "$(pg -tAc "select 1 from pg_database where datname = '$DB'")" ]; then
   if [ "$RESET" -eq 1 ]; then
     echo "deleting the existing database $DB (--reset)"
-    systemctl stop ringqswitch 2>/dev/null || true
+    systemctl stop orswitch 2>/dev/null || true
     pg -c "select pg_terminate_backend(pid) from pg_stat_activity where datname = '$DB'" >/dev/null
     pg -c "drop database \"$DB\""
   else
@@ -151,13 +151,13 @@ echo "created database $DB owned by $DBUSER"
 # ---------------------------------------------------------------------------
 if [ -n "$LOAD" ]; then
   step "Loading $LOAD (this can take a while)"
-  log="/root/ringqswitch-load-$DB.log"
+  log="/root/orswitch-load-$DB.log"
   pgdb -f "$LOAD" > "$log" 2>&1 || true
   errors=$(grep -c "ERROR:" "$log" || true)
   echo "done; $errors error line(s), details in $log"
   if [ "$errors" -gt 0 ]; then
     echo "(a few errors are normal: missing roles/owners, MySQL-style DELIMITER lines from"
-    echo " Adminer exports, a trigger whose function is not in the dump. RingQswitch only"
+    echo " Adminer exports, a trigger whose function is not in the dump. ORswitch only"
     echo " needs the tables.)"
     grep "ERROR:" "$log" | sed 's/^/   /' | sort | uniq -c | sort -rn | head -8
   fi
@@ -167,9 +167,9 @@ if [ -n "$LOAD" ]; then
 fi
 
 # ---------------------------------------------------------------------------
-step "Configuring $CONF/ringqswitch.xml"
+step "Configuring $CONF/orswitch.xml"
 mkdir -p "$CONF"
-cfg="$CONF/ringqswitch.xml"
+cfg="$CONF/orswitch.xml"
 if [ -z "$PUBLIC_IP" ]; then
   for f in "$cfg" "$cfg.orig"; do
     [ -f "$f" ] || continue
@@ -186,8 +186,8 @@ cp "$EXAMPLE" "$cfg"
 dsn="postgres://$DBUSER:$DBPW@127.0.0.1:5432/$DB?sslmode=disable"
 sed -i -e "s|<param name=\"dsn\" value=\"[^\"]*\"/>|<param name=\"dsn\" value=\"$dsn\"/>|" \
        -e 's|<param name="poll-seconds" value="[0-9]*"/>|<param name="poll-seconds" value="5"/>|' "$cfg"
-[ -d /usr/share/freeswitch/sounds ] || sed -i 's|"/usr/share/freeswitch/sounds"|"/var/lib/ringqswitch/sounds"|' "$cfg"
-[ -d /var/lib/freeswitch/recordings ] || sed -i 's|"/var/lib/freeswitch/recordings"|"/var/lib/ringqswitch/recordings"|' "$cfg"
+[ -d /usr/share/freeswitch/sounds ] || sed -i 's|"/usr/share/freeswitch/sounds"|"/var/lib/orswitch/sounds"|' "$cfg"
+[ -d /var/lib/freeswitch/recordings ] || sed -i 's|"/var/lib/freeswitch/recordings"|"/var/lib/orswitch/recordings"|' "$cfg"
 if [ -n "$PUBLIC_IP" ]; then
   sed -i -e "s|<param name=\"ext-sip-ip\" value=\"[^\"]*\"/>|<param name=\"ext-sip-ip\" value=\"$PUBLIC_IP\"/>|" \
          -e "s|<param name=\"ext-rtp-ip\" value=\"[^\"]*\"/>|<param name=\"ext-rtp-ip\" value=\"$PUBLIC_IP\"/>|" "$cfg"
@@ -201,8 +201,8 @@ if [ "$WEBPORT" -gt 0 ]; then
          -e "s|<param name=\"admin-password\" value=\"[^\"]*\"/>|<param name=\"admin-password\" value=\"$WEBPW\"/>|" "$cfg"
   grep -q "0.0.0.0:$WEBPORT" "$cfg" || die "could not switch on the web interface in $cfg"
 fi
-mkdir -p /var/lib/ringqswitch/voicemail /var/lib/ringqswitch/sounds/music/default /var/lib/ringqswitch/sounds/prompts /var/lib/ringqswitch/recordings
-id ringq >/dev/null 2>&1 && chown -R ringq:ringq /var/lib/ringqswitch
+mkdir -p /var/lib/orswitch/voicemail /var/lib/orswitch/sounds/music/default /var/lib/orswitch/sounds/prompts /var/lib/orswitch/recordings
+id ringq >/dev/null 2>&1 && chown -R ringq:ringq /var/lib/orswitch
 
 if id ringq >/dev/null 2>&1; then
   chown root:ringq "$cfg"
@@ -211,8 +211,8 @@ fi
 ESLPW=$(grep -o 'name="event-socket-password" value="[^"]*"' "$cfg" | sed 's/.*value="//; s/"$//')
 
 # ---------------------------------------------------------------------------
-step "Creating the tables RingQswitch uses"
-ringqswitch -conf "$CONF" -init-db
+step "Creating the tables ORswitch uses"
+orswitch -conf "$CONF" -init-db
 
 # ---------------------------------------------------------------------------
 if [ "$SAMPLE" -eq 1 ]; then
@@ -222,7 +222,7 @@ if [ "$SAMPLE" -eq 1 ]; then
 \set rguuid 'c0000000-0000-4000-8000-0000000000c1'
 \set ivruuid 'd0000000-0000-4000-8000-0000000000d1'
 insert into v_domains (domain_uuid, domain_name, domain_enabled, domain_description)
-  values (:'duuid', :'domain', true, 'RingQswitch test domain');
+  values (:'duuid', :'domain', true, 'ORswitch test domain');
 insert into v_extensions (extension_uuid, domain_uuid, extension, password, effective_caller_id_name,
     effective_caller_id_number, outbound_caller_id_name, outbound_caller_id_number, user_context,
     call_timeout, enabled, max_registrations, description)
@@ -262,10 +262,10 @@ fi
 
 # ---------------------------------------------------------------------------
 step "Adding default call routing (feature codes, AUX codes)"
-ringqswitch -conf "$CONF" -init-db
+orswitch -conf "$CONF" -init-db
 if [ "$SAMPLE" -eq 1 ] && [ "$WEBPORT" -gt 0 ]; then
   # Extension 1000 manages the domain from the web interface (Owner).
-  RQ_WEB_PASSWORD="$WEBPW" ringqswitch -conf "$CONF" -web-access "1000@$DOMAIN" -role owner
+  OR_WEB_PASSWORD="$WEBPW" orswitch -conf "$CONF" -web-access "1000@$DOMAIN" -role owner
 fi
 
 ndomains=$(pgdb -tAc "select count(*) from v_domains where coalesce(domain_enabled::text, 'true') in ('true','t')")
@@ -280,7 +280,7 @@ fi
 
 # ---------------------------------------------------------------------------
 step "Checking the configuration"
-if ! ringqswitch -conf "$CONF" -check; then
+if ! orswitch -conf "$CONF" -check; then
   die "the configuration check failed (see the messages above)"
 fi
 if [ "$ndomains" -gt 1 ] && [ -z "$DEFAULT_DOMAIN" ]; then
@@ -291,21 +291,21 @@ if [ "$ndomains" -gt 1 ] && [ -z "$DEFAULT_DOMAIN" ]; then
 fi
 
 if [ "$RESTART" -eq 1 ] && [ -d /run/systemd/system ]; then
-  step "Restarting RingQswitch"
+  step "Restarting ORswitch"
   # The previous switch of a RingQ server listens on the same ports.
   OLD_SWITCH=freeswitch
   if systemctl is-active --quiet "$OLD_SWITCH" 2>/dev/null; then
     echo "Another phone switch is running on this server and uses the same ports."
     die "stop it first (sudo systemctl disable --now $OLD_SWITCH), then run this script again"
   fi
-  systemctl enable ringqswitch >/dev/null 2>&1 || true
-  systemctl restart ringqswitch
+  systemctl enable orswitch >/dev/null 2>&1 || true
+  systemctl restart orswitch
   sleep 2
-  if systemctl is-active --quiet ringqswitch; then
-    echo "RingQswitch is running"
+  if systemctl is-active --quiet orswitch; then
+    echo "ORswitch is running"
   else
-    journalctl -u ringqswitch -n 20 --no-pager || true
-    die "RingQswitch did not start (messages above)"
+    journalctl -u orswitch -n 20 --no-pager || true
+    die "ORswitch did not start (messages above)"
   fi
 fi
 
@@ -316,13 +316,13 @@ fi
 
 # ---------------------------------------------------------------------------
 server_ip="${PUBLIC_IP:-$(hostname -I 2>/dev/null | awk '{print $1}')}"
-summary="/root/ringqswitch-test.txt"
+summary="/root/orswitch-test.txt"
 {
-  echo "RingQswitch test database ($(date))"
+  echo "ORswitch test database ($(date))"
   echo
   echo "Database      : $DB on 127.0.0.1:5432, user $DBUSER, password $DBPW"
   echo "Open it       : sudo -u postgres psql $DB"
-  echo "Event socket  : rq_cli -p $ESLPW -x status"
+  echo "Event socket  : or_cli -p $ESLPW -x status"
   echo "Domains       : $ndomains    Extensions: $nexts"
   if [ "$WEBPORT" -gt 0 ]; then
     echo
@@ -351,8 +351,8 @@ summary="/root/ringqswitch-test.txt"
   fi
   echo
   echo "Call records  : sudo -u postgres psql $DB -c \"select start_stamp, caller_id_number, destination_number, billsec, hangup_cause, status from v_xml_cdr order by start_stamp desc limit 10\""
-  echo "Registrations : rq_cli -p $ESLPW -x \"show registrations\""
-  echo "Live log      : sudo journalctl -u ringqswitch -f"
+  echo "Registrations : or_cli -p $ESLPW -x \"show registrations\""
+  echo "Live log      : sudo journalctl -u orswitch -f"
 } > "$summary"
 chmod 600 "$summary"
 echo

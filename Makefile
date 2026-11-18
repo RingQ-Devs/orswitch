@@ -7,8 +7,8 @@ export PATH := /usr/local/go/bin:$(PATH)
 .PHONY: build test test-db race vet interop run install container clean
 
 build:
-	go build -ldflags "$(LDFLAGS)" -o bin/ringqswitch ./cmd/ringqswitch
-	go build -ldflags "$(LDFLAGS)" -o bin/rq_cli ./cmd/rq_cli
+	go build -ldflags "$(LDFLAGS)" -o bin/orswitch ./cmd/orswitch
+	go build -ldflags "$(LDFLAGS)" -o bin/or_cli ./cmd/or_cli
 
 test:
 	go test ./...
@@ -32,7 +32,7 @@ interop:
 	bash test/interop/run.sh
 
 run: build
-	bin/ringqswitch -conf conf
+	bin/orswitch -conf conf
 
 # Invoked through bash so it works even if the execute bit was lost in transfer.
 install: build
@@ -41,7 +41,7 @@ install: build
 # Container image; CONTAINER_TOOL is the program that builds it.
 CONTAINER_TOOL ?= docker
 container:
-	$(CONTAINER_TOOL) build -f Containerfile -t ringqswitch:$(VERSION) .
+	$(CONTAINER_TOOL) build -f Containerfile -t orswitch:$(VERSION) .
 
 clean:
 	rm -rf bin

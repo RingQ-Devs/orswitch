@@ -1,4 +1,4 @@
-// Package db connects RingQswitch to a PostgreSQL database that uses the
+// Package db connects ORswitch to a PostgreSQL database that uses the
 // RingQ schema (as the RingQ platform does). It replaces what
 // the previous switch got from the RingQ portal's Lua XML handlers and its core database:
 //
@@ -50,7 +50,7 @@ func Open(ctx context.Context, cfg config.Database, log *slog.Logger) (*Store, e
 	if pc.MaxConns < 4 {
 		pc.MaxConns = 4
 	}
-	pc.ConnConfig.RuntimeParams["application_name"] = "ringqswitch"
+	pc.ConnConfig.RuntimeParams["application_name"] = "orswitch"
 	cctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 	pool, err := pgxpool.NewWithConfig(cctx, pc)
@@ -68,12 +68,12 @@ func Open(ctx context.Context, cfg config.Database, log *slog.Logger) (*Store, e
 	}
 	if cfg.ManageSchema {
 		if err := s.EnsureSchema(cctx); err != nil {
-			log.Warn("database: RingQswitch tables unavailable (AUX codes, agent status log, queue reports, outbound routes and time conditions need them)", "err", err)
+			log.Warn("database: ORswitch tables unavailable (AUX codes, agent status log, queue reports, outbound routes and time conditions need them)", "err", err)
 		}
 		if roles, err := s.ShareTables(cctx, cfg.GrantTo); err != nil {
-			log.Warn("database: could not share RingQswitch's tables with the other database users", "err", err)
+			log.Warn("database: could not share ORswitch's tables with the other database users", "err", err)
 		} else if len(roles) > 0 {
-			log.Info("database: RingQswitch's tables are readable and writable by", "roles", strings.Join(roles, ","))
+			log.Info("database: ORswitch's tables are readable and writable by", "roles", strings.Join(roles, ","))
 		}
 	}
 	return s, nil

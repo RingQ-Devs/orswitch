@@ -443,7 +443,7 @@ func appScriptProvision(s *Script) error {
 // servers/clear_cache
 
 // scriptClearCache (app/servers/resources/clear_cache.lua flush | delete <file>): empties the
-// FusionPBX cache folder (setting cache/location), if there is one. RingQswitch has no file
+// FusionPBX cache folder (setting cache/location), if there is one. ORswitch has no file
 // cache of its own: a flush also makes it read its configuration again.
 func scriptClearCache(s *Script) error {
 	c := s.Core

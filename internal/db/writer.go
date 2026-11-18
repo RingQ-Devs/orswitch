@@ -421,7 +421,7 @@ func (w *Writer) cdr(ctx context.Context, e *core.Event) {
 		}
 	}
 	bridged := v["bridge_uuid"] != "" || v["last_bridge_to"] != ""
-	// RingQswitch picks up a call itself to play a queue's music, an IVR or
+	// ORswitch picks up a call itself to play a queue's music, an IVR or
 	// a voicemail greeting: that is not someone answering. A caller who
 	// joined a queue that no agent answered for (and who was not put through
 	// to anyone afterwards) missed the call; one who leaves a message

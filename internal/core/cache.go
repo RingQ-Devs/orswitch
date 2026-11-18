@@ -13,7 +13,7 @@ type CacheReport struct {
 	TookMS     int64 `json:"took_ms"`
 }
 
-// ClearCache forgets what RingQswitch keeps between database reads (the
+// ClearCache forgets what ORswitch keeps between database reads (the
 // carriers' resolved addresses, compiled number patterns) and reloads the
 // configuration from the database at once, like
 // "xml_flush_cache" and "reloadxml" together. Calls in progress continue.

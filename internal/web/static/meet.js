@@ -553,7 +553,7 @@ const Meet = (() => {
     setTimeout(() => { if (!signed && !nameIn.value) nameIn.focus(); }, 0);
     return h('div', { class: 'mt-split page' }, leftColumn(signed ? name : (nameIn.value.trim() || 'Guest')), h('div', { class: 'mt-right' }, right));
   }
-  const brand = () => (st.info && st.info.brand) || (portal() && S.me.brand) || 'RingQswitch';
+  const brand = () => (st.info && st.info.brand) || (portal() && S.me.brand) || 'ORswitch';
 
   // ------------------------------------------------------------ signalling
   function send(m) { if (st.ws && st.ws.readyState === 1) st.ws.send(JSON.stringify(m)); }

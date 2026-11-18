@@ -63,7 +63,7 @@ var cdrColumns = []string{"xml_cdr_uuid", "direction", "caller_id_name", "caller
 	"start_epoch", "answer_epoch", "end_epoch", "cc_queue_joined_epoch", "cc_queue_answered_epoch", "cc_queue_canceled_epoch", "cc_queue_terminated_epoch"}
 
 // cdrStatusExpr is a call record's result as shown: its status, except
-// that a call RingQswitch only picked up itself is not "answered" (records
+// that a call ORswitch only picked up itself is not "answered" (records
 // written before 0.7.4 could say so): one that joined a queue no agent
 // answered for, and was not put through to anyone, is "missed"; one where
 // a message was left is "voicemail". The stored rows are not changed.

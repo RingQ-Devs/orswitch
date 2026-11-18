@@ -113,7 +113,7 @@ func (w *WSConn) Receive(raw []byte) {
 				w.s.log.Warn("sip: websocket client media refused", "src", msg.Src.String(), "msg", msg.Short(), "err", err)
 				if msg.IsRequest() && msg.Method == "INVITE" {
 					resp := NewResponse(msg, 488, "")
-					resp.Add("Warning", `399 RingQswitch "no usable audio codec (G.711 needed)"`)
+					resp.Add("Warning", `399 ORswitch "no usable audio codec (G.711 needed)"`)
 					_ = w.s.send(resp, msg.Src)
 				}
 				return

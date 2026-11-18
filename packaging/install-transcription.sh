@@ -9,15 +9,15 @@
 #       Downloads and builds the recogniser (about 5 minutes), installs
 #       /usr/local/bin/rq-speech and /usr/local/bin/rq-speech-server and
 #       downloads a model to
-#       /usr/local/share/ringqswitch/speech/: "small" (466 MB, more
+#       /usr/local/share/orswitch/speech/: "small" (466 MB, more
 #       accurate) on a server with 4 or more CPUs and 4 GB of memory,
 #       "base" (142 MB, faster) otherwise.
 #
 #   sudo bash packaging/install-transcription.sh --model small
 #       Chooses the model: base, small or medium (1.5 GB, most accurate,
 #       slow without a fast CPU); base.en / small.en for English only.
-#       Run it again to change the model: RingQswitch uses the largest one
-#       installed (or the one set with transcribe-model in ringqswitch.xml)
+#       Run it again to change the model: ORswitch uses the largest one
+#       installed (or the one set with transcribe-model in orswitch.xml)
 #       after calls, and the fastest good one (base) for live transcription
 #       (base is downloaded too when the model is larger); both can be
 #       chosen per domain in Settings → Call transcription.
@@ -27,7 +27,7 @@
 #     --source DIR      the recogniser's source tree copied to the server
 #     --model-file FILE a ggml-*.bin model copied to the server
 #
-# RingQswitch finds the recogniser within a minute: no restart needed.
+# ORswitch finds the recogniser within a minute: no restart needed.
 set -euo pipefail
 
 # Where the recogniser's source and the speech models are downloaded from.
@@ -36,9 +36,9 @@ SPEECH_REF="${SPEECH_REF:-v1.8.5}"
 MODEL_URL="${MODEL_URL:-https://huggingface.co/ggerganov/whisper.cpp/resolve/main}"
 BIN=/usr/local/bin/rq-speech
 SERVER_BIN=/usr/local/bin/rq-speech-server
-MODELS=/usr/local/share/ringqswitch/speech
-OLD_MODELS=/usr/local/share/ringqswitch/whisper   # before 0.10.1
-SRCDIR=/opt/ringqswitch-speech
+MODELS=/usr/local/share/orswitch/speech
+OLD_MODELS=/usr/local/share/orswitch/whisper   # before 0.10.1
+SRCDIR=/opt/orswitch-speech
 [ -d /opt/whisper.cpp ] && [ ! -e "$SRCDIR" ] && SRCDIR=/opt/whisper.cpp   # an earlier install's source
 
 MODEL=""
@@ -202,9 +202,9 @@ case "$MODEL" in
     ;;
 esac
 
-CFG=/etc/ringqswitch/ringqswitch.xml
+CFG=/etc/orswitch/orswitch.xml
 if [ -f "$CFG" ] && grep -Eq '^[[:space:]]*<param name="transcribe-model"' "$CFG"; then
-  echo "note: $CFG sets transcribe-model; RingQswitch uses that model, not $DEST"
+  echo "note: $CFG sets transcribe-model; ORswitch uses that model, not $DEST"
 fi
 cat <<EOF
 

@@ -120,7 +120,7 @@ func (g *sipGateway) call(id string, remote netip.AddrPort) (*rtcCall, error) {
 			}
 		}()
 	}
-	c.track, err = webrtc.NewTrackLocalStaticRTP(webrtc.RTPCodecCapability{MimeType: webrtc.MimeTypePCMU, ClockRate: 8000, Channels: 1}, "audio", "ringqswitch")
+	c.track, err = webrtc.NewTrackLocalStaticRTP(webrtc.RTPCodecCapability{MimeType: webrtc.MimeTypePCMU, ClockRate: 8000, Channels: 1}, "audio", "orswitch")
 	if err != nil {
 		c.close()
 		return nil, err

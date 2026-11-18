@@ -1,4 +1,4 @@
-# RingQswitch architecture
+# ORswitch architecture
 
 ## Packages
 
@@ -16,10 +16,10 @@
 | `internal/web` | HTTPS server, JSON API, WebSocket hub, browser audio (WebRTC) for the dialer and meetings, and the embedded portal (`web/static/`) |
 | `internal/webphone` | The SIP client inside the switch that each browser dialer registers as |
 | `internal/transcribe` | Call and voicemail transcription (speech recogniser driver, voice activity, speakers) and sentiment |
-| `internal/logbus` | Live log stream for `rq_cli` and the event socket `log` command |
+| `internal/logbus` | Live log stream for `or_cli` and the event socket `log` command |
 | `internal/testua` | Scriptable SIP phone used by the end-to-end tests |
-| `cmd/ringqswitch` | Daemon (signals, reload, logging) |
-| `cmd/rq_cli` | Console client |
+| `cmd/orswitch` | Daemon (signals, reload, logging) |
+| `cmd/or_cli` | Console client |
 
 Dependencies point one way: `sip`, `sdp`, `media` and `dialplan` know nothing
 about the core. `core` composes them, and `esl` sits on top of `core`.

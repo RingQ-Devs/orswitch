@@ -1,17 +1,17 @@
-# Running RingQswitch on the RingQ portal database
+# Running ORswitch on the RingQ portal database
 
-RingQswitch reads and writes the PostgreSQL tables of the RingQ portal. Your
-portal, API and database stay as they are; RingQswitch is the switch behind
+ORswitch reads and writes the PostgreSQL tables of the RingQ portal. Your
+portal, API and database stay as they are; ORswitch is the switch behind
 them:
 
 ```
  RingQ portal / API ── PostgreSQL ───────────┐
         │  (event socket :8021)               │ reads config, writes state + CDRs
         ▼                                     ▼
-                 RingQswitch (one Go binary)
+                 ORswitch (one Go binary)
 ```
 
-| Portal data | What RingQswitch does with it |
+| Portal data | What ORswitch does with it |
 |---|---|
 | Domains and extensions (`v_domains`, `v_extensions`) | the directory; every extension column becomes a directory variable |
 | Dialplans (`v_dialplans.dialplan_xml`) | loads the same XML, same contexts and order |
@@ -34,9 +34,9 @@ them:
 > (`packaging/setup-test-db.sh`), then a copy of your real data, before you
 > touch production.
 
-* The RingQ server (or a copy of it). RingQswitch runs on the same box and
+* The RingQ server (or a copy of it). ORswitch runs on the same box and
   connects to PostgreSQL locally.
-* RingQswitch built and installed as in [INSTALL.md](../INSTALL.md)
+* ORswitch built and installed as in [INSTALL.md](../INSTALL.md)
   (`make build && sudo make install`).
 * The database credentials. The portal keeps them in its `config.conf`:
 
@@ -48,15 +48,15 @@ them:
 * **A backup**, so you can always go back:
 
   ```bash
-  sudo -u postgres pg_dump -Fc DBNAME > /root/ringq-before-ringqswitch.dump
+  sudo -u postgres pg_dump -Fc DBNAME > /root/ringq-before-orswitch.dump
   ```
 
 ## 2. Configure
 
 ```bash
-sudo cp /etc/ringqswitch/ringqswitch.xml /etc/ringqswitch/ringqswitch.xml.orig
-sudo cp conf/examples/ringq-postgres.xml /etc/ringqswitch/ringqswitch.xml
-sudo nano /etc/ringqswitch/ringqswitch.xml
+sudo cp /etc/orswitch/orswitch.xml /etc/orswitch/orswitch.xml.orig
+sudo cp conf/examples/ringq-postgres.xml /etc/orswitch/orswitch.xml
+sudo nano /etc/orswitch/orswitch.xml
 ```
 
 Set at least:
@@ -67,7 +67,7 @@ Set at least:
 | `event-socket-password` | the password your backend uses |
 | `event-socket-listen` | `127.0.0.1:8021`, or `0.0.0.0:8021` if the backend runs on another server (then allow only that server in the firewall) |
 | `recordings-dir` | the folder your portal reads recordings from (the sample already points at the RingQ server's existing recordings folder) |
-| `sounds-dir` | the prompts folder (the sample points at the existing one, else `/var/lib/ringqswitch/sounds`) |
+| `sounds-dir` | the prompts folder (the sample points at the existing one, else `/var/lib/orswitch/sounds`) |
 | `fax-dir` | faxes sent and received (eFax); default: `fax` next to `recordings-dir` |
 | `cdr-tables` | `v_xml_cdr`, plus `q_ringq_cdr` if nothing else fills that table (see section 6) |
 | `<web>` `listen`, `admin-password` | the web portal ([WEB-UI.md](WEB-UI.md)) |
@@ -80,7 +80,7 @@ sudo chmod -R g+rwX <recordings-dir>
 ```
 
 With a database configured, the sample users and dialplan in
-`/etc/ringqswitch/directory` and `/etc/ringqswitch/dialplan` are ignored
+`/etc/orswitch/directory` and `/etc/orswitch/dialplan` are ignored
 (set `xml-directory` / `xml-dialplan` to `true` to load them as well).
 
 ## 3. Check before switching over
@@ -88,15 +88,15 @@ With a database configured, the sample users and dialplan in
 The previous switch can keep running during these checks.
 
 ```bash
-ringqswitch -conf /etc/ringqswitch -check
+orswitch -conf /etc/orswitch -check
 # level=INFO msg="database configuration loaded" domains=3 extensions=120 gateways=2 dialplans=96 ...
 # configuration OK: 3 domain(s), 120 users, 5 dialplan contexts, 2 gateways, 4 ring groups, 2 IVR menus
 
-ringqswitch -conf /etc/ringqswitch -compat
+orswitch -conf /etc/orswitch -compat
 ```
 
 `-compat` lists every dialplan application and `${function}` used in your
-`v_dialplans` that RingQswitch does not support, with the dialplans that
+`v_dialplans` that ORswitch does not support, with the dialplans that
 use them. Applications in the "not supported yet" section are skipped and
 the call continues with the next action. **Send this report to us**: it is
 the to-do list for full support of your data.
@@ -112,17 +112,17 @@ systemctl list-units --type=service --state=running   # the previous switch's se
 sudo systemctl disable --now <previous switch service> # keep it installed for rollback
 sudo ss -lunp | grep -E ':(5060|5080|8021)\b'          # must print nothing
 
-sudo systemctl enable --now ringqswitch
-sudo journalctl -u ringqswitch -f
+sudo systemctl enable --now orswitch
+sudo journalctl -u orswitch -f
 ```
 
 Phones re-register within their registration interval (force it by
 rebooting them or toggling the account). Then:
 
 ```bash
-sudo rq_cli -x "domains"
-sudo rq_cli -x "show registrations"
-sudo rq_cli -x "sip status"            # gateways: REGED / NOREG
+sudo or_cli -x "domains"
+sudo or_cli -x "show registrations"
+sudo or_cli -x "sip status"            # gateways: REGED / NOREG
 ```
 
 Test in this order: extension to extension, an outbound call through each
@@ -133,11 +133,11 @@ registrations pages work.
 **Rollback** at any time:
 
 ```bash
-sudo systemctl disable --now ringqswitch
+sudo systemctl disable --now orswitch
 sudo systemctl enable --now <previous switch service>
 ```
 
-RingQswitch writes `registrations`, `channels`, `calls` (rows of its own
+ORswitch writes `registrations`, `channels`, `calls` (rows of its own
 host name), CDR rows and the tables listed in section 6. It changes
 configuration only where section 6 says so (for example do-not-disturb set
 from a phone) and when you save something in its web portal.
@@ -151,7 +151,7 @@ from a phone) and when you save something in its web portal.
 | `v_gateways` | trunks | `proxy`, `outbound_proxy`, `register_proxy`, `username`, `auth_username`, `password`, `realm`, `from_user`, `from_domain`, `register`, `register_transport` (udp/tcp), `expire_seconds`, `retry_seconds`, `context`, `extension`, `caller_id_in_from`, `enabled`, `hostname`, `profile` (the SIP profile whose port it sends from) |
 | `v_sip_profiles`, `v_sip_profile_settings` | SIP ports | enabled profiles for this host; settings `sip-port` (`$${internal_sip_port}` = 5060, `$${external_sip_port}` = 5080), `sip-ip` (bound only when it is an address of this server), `ext-sip-ip`, `bind-params` (`transport=udp` = no TCP), `tls` (not served). Each enabled profile on another port than the main one opens that port |
 | `v_dialplans` | dialplan | `dialplan_xml` of enabled rows for this host, by `dialplan_order`. Context `${domain_name}`/`global` rows apply to every domain (or to their own domain when `domain_uuid` is set); `public` is the inbound context |
-| `v_vars` | globals | enabled `set` rows for this host; values in `ringqswitch.xml` win |
+| `v_vars` | globals | enabled `set` rows for this host; values in `orswitch.xml` win |
 | `v_ring_groups`, `v_ring_group_destinations` | ring groups | strategies simultaneous, enterprise, sequence, random, rollover; per destination delay and timeout; caller ID prefixes; forward; greeting; timeout action |
 | `v_ivr_menus`, `v_ivr_menu_options` | IVR | greetings (long/short), invalid and exit sounds, timeouts, max failures/timeouts, digit length, direct dial, options `menu-exec-app`, `menu-sub`, `menu-top`, `menu-back`, `menu-exit`, `menu-play-sound`, exit action |
 | `v_access_controls` / `_nodes` | carriers | `allow` nodes of the list named `providers` |
@@ -163,7 +163,7 @@ from a phone) and when you save something in its web portal.
 | `q_time_schedules`, `q_holidays`, `q_holiday_exemptions` | office hours | RingQ's tables: `work_schedule` (`day-close-open`, minutes, day 1 = Sunday; a day not listed is open all day; close = open: closed all day), `work_default` (the action outside office hours, `""` = none), `break_schedule` (`day-start-end`), `break_default`, `special_filename` (the holiday sound), `special_default`, `work_extensions` / `break_extensions` / `special_extensions` (when set, only calls to these numbers); holidays `month`/`day`/`year` to `month2`/`day2`/`year2`, `recurring`, `time` (`HH:MM-HH:MM`, empty: all day), `holiday_greeting`, `exemptions`, `extensions` (when set, the holiday closes only these numbers); exemptions `extension` (a number never closed on holidays) |
 | `q_security_restrictions`, `q_security_rules`, `v_pin_numbers` | calls out | `blocked_countries` (ISO codes; calling codes are read too); `pin_all_outbound`, `pin_prefix_outbound`, `pin_no_outbound`, `prefixes`, `trusted_device` (extensions, comma separated); enabled PINs and their `accountcode` |
 | `rq_settings`, `sip_security_blocks` | SIP Guard | `server` / `sip_guard` (JSON: enabled and the protections), `server` / `restrict_sip`, `<domain uuid>` / `web_idle_logout`; bans with `status = 'banned'` whose `metadata->>'until'` is still ahead are restored at start |
-| `rq_aux_codes`, `rq_outbound_routes`, `rq_time_conditions` | RingQswitch | AUX codes (with "block direct calls"), outbound routes and office hours made in the web interface (their dialplans are in `v_dialplans`) |
+| `rq_aux_codes`, `rq_outbound_routes`, `rq_time_conditions` | ORswitch | AUX codes (with "block direct calls"), outbound routes and office hours made in the web interface (their dialplans are in `v_dialplans`) |
 
 **When changes apply.** The configuration tables are fingerprinted every
 `poll-seconds` (10 in the sample configuration); any insert, update or delete triggers a reload,
@@ -209,8 +209,8 @@ removed or re-registered only when their row changed.
 | `v_voicemail_messages` | a voicemail is left (and transcribed) | message uuid, box, caller, length; the audio is `voicemail-dir/<domain>/<box>/msg_<uuid>.wav`; `message_transcription`: the message's text, when voicemail transcription is on |
 | `v_xml_cdr` call-centre columns | queue calls | `call_center_queue_uuid`, `cc_queue`, `cc_agent`, `cc_agent_uuid`, `cc_cause`, `cc_cancel_reason`, `cc_queue_*_epoch`; `voicemail_message`; status `voicemail` |
 
-**Tables RingQswitch creates.** At start (`manage-schema`, default on) it
-creates its own `rq_*` tables when missing. `ringqswitch -init-db` (and the
+**Tables ORswitch creates.** At start (`manage-schema`, default on) it
+creates its own `rq_*` tables when missing. `orswitch -init-db` (and the
 web interface's *Repair defaults*) also creates the RingQ tables listed above
 **that do not exist** (all of them in a new database, none in a complete
 RingQ database), the default dialplans (feature codes `*22`,
@@ -220,7 +220,7 @@ per domain, and dialplans for ring groups, IVR menus, queues and conferences
 that have none. Existing rows and tables are never changed.
 
 **Who may read those tables.** The tables belong to the database user in
-`dsn`. At start RingQswitch lets the database's owner and the owner of
+`dsn`. At start ORswitch lets the database's owner and the owner of
 `v_domains` read and change them too (also tables it creates later), plus
 the users listed in `<param name="grant-to" value="ringq,portal"/>`. So a
 database tool or the RingQ portal signed in as another user does not get
@@ -239,7 +239,7 @@ skipped, so a second writer cannot cause duplicates with the same uuid.
 
 **`q_ringq_cdr`.** It has the `v_xml_cdr` columns. Find out what fills it
 today before adding it to `cdr-tables`: if your backend inserts it from
-`CHANNEL_HANGUP_COMPLETE` events, it keeps working unchanged (RingQswitch
+`CHANNEL_HANGUP_COMPLETE` events, it keeps working unchanged (ORswitch
 sends those events with all `variable_*` headers); if a script inside the
 previous switch did it, add `q_ringq_cdr` to `cdr-tables`.
 
@@ -260,7 +260,7 @@ previous switch did it, add `q_ringq_cdr` to `cdr-tables`.
 
 ## 8. Carriers
 
-* **Registered gateways**: RingQswitch registers with Contact
+* **Registered gateways**: ORswitch registers with Contact
   `sip:gw+<gateway_uuid>@<server>`, so calls the carrier sends to that
   contact are recognised. Calls from the gateway's proxy address are
   recognised too. Both go to the gateway's `context` (default `public`).
@@ -304,7 +304,7 @@ Supported in stored dialplans:
   `stop_record_session`, `voicemail`, `callcenter`, `conference`,
   `intercept`, `rq_dnd`, `rq_call_return`, `rq_redial`, `rq_pickup`,
   `rq_agent_status` (desk phone codes), `lua do_not_disturb.lua`,
-  `intercept.lua`, `intercept_group.lua`, `ai_agent` (a RingQswitch AI
+  `intercept.lua`, `intercept_group.lua`, `ai_agent` (a ORswitch AI
   agent answers: see WEB-UI.md 12E), `rxfax`, `txfax` (fax on G.711, or
   T.38 when the far end re-INVITEs to it unless `fax_enable_t38=false`:
   `fax_ident`, `fax_header`; results in `fax_success`, `fax_result_code`,
@@ -334,9 +334,9 @@ so prefer PCMU/PCMA when recording matters.
 |---|---|
 | `database: ... password authentication failed` | DSN user/password; `pg_hba.conf` allows `127.0.0.1` with md5/scram |
 | `-check` shows 0 extensions | wrong database name, or the domain is disabled in `v_domains` |
-| Phone gets 403 | `rq_cli -x "domains"`: is the phone's domain listed? With several domains and an IP-configured phone set `default-domain`. Wrong password shows `authentication failed` in the journal; 10 failures block the IP (`rq_cli -x blocked`, `-x "unblock IP"`, or Security → SIP Guard) |
-| Calls to an extension fail with 404 / no route | `rq_cli -x "user_exists id 1001 domain"`; the dialplan context is the domain name: check `-compat` and the journal for `no route` |
+| Phone gets 403 | `or_cli -x "domains"`: is the phone's domain listed? With several domains and an IP-configured phone set `default-domain`. Wrong password shows `authentication failed` in the journal; 10 failures block the IP (`or_cli -x blocked`, `-x "unblock IP"`, or Security → SIP Guard) |
+| Calls to an extension fail with 404 / no route | `or_cli -x "user_exists id 1001 domain"`; the dialplan context is the domain name: check `-compat` and the journal for `no route` |
 | Outbound call fails with `INVALID_GATEWAY` | the dialplan references a gateway uuid that is disabled, missing, or for another `hostname` |
-| Portal change not applied | wait `poll-seconds`, or `rq_cli -x reloadxml`; the journal shows `database configuration changed; reloading` |
+| Portal change not applied | wait `poll-seconds`, or `or_cli -x reloadxml`; the journal shows `database configuration changed; reloading` |
 | Backend cannot connect to 8021 | `event-socket-listen` address and `event-socket-password`; the previous switch must be stopped |
 | No CDR rows | journal `database write failed`; table names in `cdr-tables`; the database user needs INSERT on them and on `registrations`, `channels`, `calls` |

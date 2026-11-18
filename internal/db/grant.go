@@ -8,10 +8,10 @@ import (
 )
 
 // ShareTables lets other database users read and change the tables
-// RingQswitch's own user owns (the rq_* tables it creates, and any
+// ORswitch's own user owns (the rq_* tables it creates, and any
 // RingQ table it had to create), so the RingQ portal or a database tool signed
 // in as another user does not get "permission denied". The roles are the
-// database's owner, the owner of v_domains, and extra. Tables RingQswitch
+// database's owner, the owner of v_domains, and extra. Tables ORswitch
 // creates later are covered too (default privileges). It returns the roles
 // that were granted access.
 func (s *Store) ShareTables(ctx context.Context, extra []string) ([]string, error) {

@@ -47,7 +47,7 @@ type Guard struct {
 }
 
 // DefaultGuard is SIP Guard before anything was changed: the protections
-// of RingQ's SIP Guard; wrong passwords use auth-fail-* of ringqswitch.xml.
+// of RingQ's SIP Guard; wrong passwords use auth-fail-* of orswitch.xml.
 func DefaultGuard(s Settings) Guard {
 	pw := Jail{Enabled: s.AuthFailLimit > 0, MaxFailures: s.AuthFailLimit, Window: s.AuthFailWindow, BanTime: s.AuthBlockTime}
 	if pw.MaxFailures <= 0 {

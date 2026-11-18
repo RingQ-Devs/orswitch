@@ -18,7 +18,7 @@ const Chat = (() => {
       const b = $(id);
       if (b) { b.textContent = n > 99 ? '99+' : String(n); b.classList.toggle('hidden', n === 0); }
     }
-    document.title = (n ? '(' + n + ') ' : '') + (S.me ? S.me.brand : 'RingQswitch');
+    document.title = (n ? '(' + n + ') ' : '') + (S.me ? S.me.brand : 'ORswitch');
   }
 
   async function loadRooms() {

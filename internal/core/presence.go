@@ -22,7 +22,7 @@ import (
 //   - as-feature-event: the DND key kept in step with the apps (the phones'
 //     "feature key synchronisation"), with call forwarding.
 //
-// Each subscription is a SIP dialog of its own; RingQswitch sends a NOTIFY
+// Each subscription is a SIP dialog of its own; ORswitch sends a NOTIFY
 // with the full state when it starts and whenever the state changes.
 
 const (
@@ -857,5 +857,5 @@ func apiLuarun(c *Core, args []string) (string, error) {
 		n := c.CheckSync(user, domain, args[3] == "reboot")
 		return fmt.Sprintf("+OK sent to %d phone(s)\n", n), nil
 	}
-	return "", fmt.Errorf("lua scripts are not run by RingQswitch (%s)", strings.Join(args, " "))
+	return "", fmt.Errorf("lua scripts are not run by ORswitch (%s)", strings.Join(args, " "))
 }

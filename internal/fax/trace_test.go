@@ -7,7 +7,7 @@ import (
 	"github.com/ringq-devs/orswitch/internal/media"
 )
 
-// TestAnalyzeTrace decodes a fax call's audio kept by RingQswitch (the
+// TestAnalyzeTrace decodes a fax call's audio kept by ORswitch (the
 // "-heard.wav" of a failed fax): FAX_TRACE=/path/to/file-heard.wav go test
 // -run TestAnalyzeTrace -v ./internal/fax. It lists the V.21 messages in it,
 // with the time each ended.

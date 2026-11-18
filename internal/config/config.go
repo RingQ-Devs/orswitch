@@ -1,6 +1,6 @@
-// Package config loads the RingQswitch XML configuration tree:
+// Package config loads the ORswitch XML configuration tree:
 //
-//	conf/ringqswitch.xml   core settings, global vars, gateways, ACLs
+//	conf/orswitch.xml   core settings, global vars, gateways, ACLs
 //	conf/directory/*.xml   users (extensions)
 //	conf/dialplan/*.xml    dialplan contexts
 //
@@ -118,7 +118,7 @@ type Gateway struct {
 
 // SIPProfile is a SIP listening port with its own addresses, like a
 // SIP profile (RingQ v_sip_profiles: internal 5060,
-// external 5080). The main port of ringqswitch.xml is always open; other
+// external 5080). The main port of orswitch.xml is always open; other
 // enabled profiles open their port too.
 type SIPProfile struct {
 	UUID        string
@@ -130,7 +130,7 @@ type SIPProfile struct {
 	TCP         bool
 	ExtSIPIP    string // advertised to public addresses ("" = the global ext-sip-ip)
 	ExtRTPIP    string
-	TLS         bool // configured in the database; not served by RingQswitch
+	TLS         bool // configured in the database; not served by ORswitch
 }
 
 // ACLEntry trusts a network: calls from it skip authentication and are routed
@@ -331,10 +331,10 @@ type Database struct {
 	Hostname           string
 	DefaultDomain      string // domain for phones that register with an IP address
 	CDRBLeg            bool   // also write B-leg CDRs (RingQ logs A legs only)
-	ManageSchema       bool   // create RingQswitch's own rq_* tables when missing
+	ManageSchema       bool   // create ORswitch's own rq_* tables when missing
 	XMLDirectory       bool   // also load conf/directory/*.xml (default off with a database)
 	XMLDialplan        bool   // also load conf/dialplan/*.xml (default off with a database)
-	// GrantTo are database roles that may read and change RingQswitch's
+	// GrantTo are database roles that may read and change ORswitch's
 	// tables (besides the database owner and the owner of v_domains, who
 	// always may), e.g. the user you sign in to a database tool with.
 	GrantTo []string
@@ -502,7 +502,7 @@ func Load(dir string) (*Config, error) {
 	cfg.Vars["conf_dir"] = abs
 	cfg.Vars["base_dir"] = filepath.Dir(abs)
 
-	mainPath := filepath.Join(abs, "ringqswitch.xml")
+	mainPath := filepath.Join(abs, "orswitch.xml")
 	raw, err := os.ReadFile(mainPath)
 	if err != nil {
 		return nil, err
@@ -684,7 +684,7 @@ func (cfg *Config) applySettings(main xmlMain) error {
 	s.AuthFailWindow = r.secs("auth-fail-window", 60)
 	s.AuthBlockTime = r.secs("auth-block-seconds", 600)
 	s.RTPTimeout = r.secs("rtp-timeout", 120)
-	s.UserAgent = r.str("user-agent", "RingQswitch")
+	s.UserAgent = r.str("user-agent", "ORswitch")
 	s.SIPTrace = r.bool("sip-trace", false)
 	s.MaxSessions = r.int("max-sessions", 1000)
 	s.CallTimeout = r.secs("call-timeout", 60)
@@ -741,7 +741,7 @@ func (cfg *Config) applySettings(main xmlMain) error {
 	cfg.Web = Web{
 		Listen: wr.optional("listen", ""), TLS: wr.str("tls", "self-signed"),
 		AdminUser: wr.str("admin-user", "admin"), AdminPassword: wr.str("admin-password", ""),
-		DataDir: wr.str("data-dir", "/var/lib/ringqswitch"), Brand: wr.str("brand", "RingQswitch"),
+		DataDir: wr.str("data-dir", "/var/lib/orswitch"), Brand: wr.str("brand", "ORswitch"),
 		OwnerServerAccess: wr.bool("owner-server-access", true), WebRTCPort: wr.int("webrtc-port", 8443),
 		PublicIP: wr.str("public-ip", ""), WSSPort: wr.int("wss-port", 7443), SIPTLSPort: wr.int("sip-tls-port", 0),
 	}

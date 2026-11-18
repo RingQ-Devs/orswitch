@@ -4,7 +4,7 @@
 #   sandbox.sh down    stop and remove both
 # Nothing here touches the live PostgreSQL/Redis other than one read-only pg_dump.
 # Private PostgreSQL: unix socket in $BASE (port 5432, no TCP), trust auth. Private Redis: $BASE/redis.sock.
-BASE=${RQ_SBX:-/tmp/rq_reports_sbx}
+BASE=${OR_SBX:-/tmp/rq_reports_sbx}
 PGBIN=$(ls -d /usr/lib/postgresql/*/bin | tail -1)
 case "$1" in
 up)

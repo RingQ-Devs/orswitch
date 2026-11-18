@@ -1,5 +1,5 @@
 // Package media implements RTP endpoints, relaying, G.711 coding and simple
-// audio sources for RingQswitch.
+// audio sources for ORswitch.
 package media
 
 // G.711 mu-law and A-law conversion (ITU-T G.711), after the public domain

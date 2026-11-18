@@ -1,4 +1,4 @@
-// Package logbus copies RingQswitch's log lines to event socket clients
+// Package logbus copies ORswitch's log lines to event socket clients
 // that asked for them ("log 7"), at the level each client
 // chose, whatever the level of the service log.
 package logbus

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  RingQswitch configuration for a RingQ server: RingQswitch runs on the
+  ORswitch configuration for a RingQ server: ORswitch runs on the
   same machine as the portal and uses the same PostgreSQL database.
 
-  Install it as /etc/ringqswitch/ringqswitch.xml, fill in the values marked
-  CHANGE, then:  ringqswitch -conf /etc/ringqswitch -check
+  Install it as /etc/orswitch/orswitch.xml, fill in the values marked
+  CHANGE, then:  orswitch -conf /etc/orswitch -check
   docs/DATABASE.md explains every step (stopping the previous switch, ports,
   recordings, CDR tables, rollback).
 -->
@@ -61,14 +61,14 @@
     <param name="sounds-dir" value="/usr/share/freeswitch/sounds"/>
     <param name="recordings-dir" value="/var/lib/freeswitch/recordings"/>
     <!-- Voicemail messages (msg_<uuid>.wav per box) and limits. -->
-    <param name="voicemail-dir" value="/var/lib/ringqswitch/voicemail"/>
+    <param name="voicemail-dir" value="/var/lib/orswitch/voicemail"/>
     <!-- Faxes sent and received (eFax). -->
-    <param name="fax-dir" value="/var/lib/ringqswitch/fax"/>
+    <param name="fax-dir" value="/var/lib/orswitch/fax"/>
     <!-- Call transcription (web interface → Settings → Call transcription;
          packaging/install-transcription.sh installs the recogniser). Found
-         by itself in /usr/local/bin and /usr/local/share/ringqswitch/speech. -->
+         by itself in /usr/local/bin and /usr/local/share/orswitch/speech. -->
     <!-- <param name="transcribe-command" value="/usr/local/bin/rq-speech"/> -->
-    <!-- <param name="transcribe-model" value="/usr/local/share/ringqswitch/speech/ggml-small.bin"/> -->
+    <!-- <param name="transcribe-model" value="/usr/local/share/orswitch/speech/ggml-small.bin"/> -->
     <!-- <param name="transcribe-threads" value="4"/> -->      <!-- CPU threads per call (default: half the CPUs, at most 4) -->
     <!-- <param name="transcribe-workers" value="1"/> -->      <!-- calls transcribed at the same time -->
     <!-- <param name="transcribe-min-seconds" value="5"/> -->  <!-- shorter calls (billsec) are not transcribed -->
@@ -77,7 +77,7 @@
          holding the same ggml-<model>.bin files works too). -->
     <!-- <param name="transcribe-model-url" value="https://models.example.com/speech"/> -->
     <!-- Live transcription during calls (Settings → Call transcription):
-         RingQswitch starts rq-speech-server (installed next to rq-speech)
+         ORswitch starts rq-speech-server (installed next to rq-speech)
          on 127.0.0.1 when a call is first written down live. To use a
          live recogniser started elsewhere instead, give its address. -->
     <!-- <param name="transcribe-live-url" value="http://127.0.0.1:8178"/> -->
@@ -112,16 +112,16 @@
     <!-- Phones configured with the server IP instead of a domain register to
          this domain. Not needed when the database has a single domain. -->
     <!-- <param name="default-domain" value="pbx.example.com"/> -->
-    <!-- Create RingQswitch's own rq_* tables (AUX codes, agent status log,
+    <!-- Create ORswitch's own rq_* tables (AUX codes, agent status log,
          queue call log, outbound routes, office hours) when missing. -->
     <param name="manage-schema" value="true"/>
-    <!-- Other database users that may read and change RingQswitch's tables
+    <!-- Other database users that may read and change ORswitch's tables
          (e.g. the user a database tool signs in with). The database owner and the
          owner of v_domains always may. -->
     <!-- <param name="grant-to" value="ringq"/> -->
   </database>
 
-  <!-- The RingQswitch web interface: gateways, DIDs, extensions, queues,
+  <!-- The ORswitch web interface: gateways, DIDs, extensions, queues,
        agents and AUX codes, IVRs, live call centre, reports and logs.
        Open https://<server address>:8443/ (accept the certificate warning
        once) and sign in with admin-user / admin-password. -->
@@ -137,8 +137,8 @@
          certificate: packaging/use-certificate.sh sets it up; renewals are picked up
          without a restart). -->
     <param name="tls" value="self-signed"/>
-    <param name="data-dir" value="/var/lib/ringqswitch"/>
-    <param name="brand" value="RingQswitch"/>
+    <param name="data-dir" value="/var/lib/orswitch"/>
+    <param name="brand" value="ORswitch"/>
     <!-- UDP port of the browser dialer's and the meetings' audio/video
          (allow it in the firewall; 0 = no dialer and no meetings). Where
          UDP is blocked, browsers fall back to TCP on the web port. -->

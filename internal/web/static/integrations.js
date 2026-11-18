@@ -28,7 +28,7 @@ const SSO_TEXT = {
 const SSO_STEPS = {
   microsoft: [
     ['Open the ', ['Microsoft Entra admin center', 'https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade'], ' → App registrations → New registration.'],
-    ['Name it (e.g. RingQswitch), choose who can use it (usually this organization only).'],
+    ['Name it (e.g. ORswitch), choose who can use it (usually this organization only).'],
     ['Under Redirect URI choose Web and paste the address below.'],
     ['Copy the Application (client) ID and the Directory (tenant) ID from the Overview.'],
     ['Certificates & secrets → New client secret: copy its Value (not the Secret ID).'],
@@ -128,7 +128,7 @@ PAGES.integrations = async () => {
 
   function draw() {
     const builtIn = h('div', { class: 'sso-card on' },
-      h('div', { class: 'sso-card-top' }, ssoLogo('ringq', 30), h('div', null, h('b', null, S.me.brand || 'RingQswitch'), h('span', { class: 'muted' }, t('Sign in with the extension and its web password')))),
+      h('div', { class: 'sso-card-top' }, ssoLogo('ringq', 30), h('div', null, h('b', null, S.me.brand || 'ORswitch'), h('span', { class: 'muted' }, t('Sign in with the extension and its web password')))),
       h('div', { class: 'sso-card-foot' }, badge(t('Built-in'), 'blue'), h('span', { class: 'spacer' }),
         h('button', { type: 'button', class: 'mt-link sso-go', onclick: () => opts.scrollIntoView({ behavior: 'smooth' }) }, t('Options'), ' ', icon('right', 15))));
     const order = ['linkedin', 'microsoft', 'google'];
@@ -155,7 +155,7 @@ PAGES.integrations = async () => {
   fill(main, h('div', { class: 'muted' }, t('Loading…')));
   await load();
   fill(main,
-    h('div', { class: 'page-head' }, h('h1', null, t('Integrations'), h('span', { class: 'info-dot', title: t('Connect RingQswitch with other services') }, icon('info', 15)))),
+    h('div', { class: 'page-head' }, h('h1', null, t('Integrations'), h('span', { class: 'info-dot', title: t('Connect ORswitch with other services') }, icon('info', 15)))),
     h('div', { class: 'ht-tabs sso-tabs', role: 'tablist' }, h('button', { type: 'button', class: 'on', role: 'tab', 'aria-selected': 'true' }, icon('shield', 16), ' SSO')),
     h('h2', { class: 'sso-h' }, t('Single sign-on'), h('span', { class: 'info-dot', title: t('People sign in with their work account; its email chooses the extension (the sign-in email on the extension page, else their RingQ user or voicemail email)') }, icon('info', 15))),
     cards, opts);

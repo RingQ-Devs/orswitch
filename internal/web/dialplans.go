@@ -15,7 +15,7 @@ import (
 )
 
 // Dialplans: the web interface stores call routing the way RingQ does,
-// as <extension> XML in v_dialplans, so RingQswitch (and any other switch, if it
+// as <extension> XML in v_dialplans, so ORswitch (and any other switch, if it
 // is ever used again) routes the calls.
 
 func xa(s string) string {
@@ -273,7 +273,7 @@ func conferenceDialplan(dom domainRow, r map[string]string) string {
 // faxActions answer the call as a fax machine, in the form RingQ's fax DIDs
 // use on RingQ; the fax lands in the eFax inbox (fax-dir/<domain>/inbox)
 // and the eFax worker files it (fax_jobs) from the call's events. The T.38
-// and ECM variables are kept for the RingQ portal; RingQswitch faxes as audio.
+// and ECM variables are kept for the RingQ portal; ORswitch faxes as audio.
 func faxActions(dom domainRow, faxUUID, faxExt, ident string) string {
 	var b strings.Builder
 	act := func(app, data string) {
@@ -481,9 +481,9 @@ var defaultAuxCodes = []struct {
 	order int
 }{{"Break", false, 10}, {"Lunch", false, 20}, {"Meeting", true, 30}, {"Training", true, 40}, {"Personal", false, 50}}
 
-// InstallDefaults adds what a RingQswitch database needs and is missing:
-// the RingQ tables RingQswitch uses (all of them in a new
-// database), RingQswitch's rq_* tables, the default dialplans (feature
+// InstallDefaults adds what a ORswitch database needs and is missing:
+// the RingQ tables ORswitch uses (all of them in a new
+// database), ORswitch's rq_* tables, the default dialplans (feature
 // codes, extension calls...), default AUX
 // codes per domain, and dialplans for ring groups, IVR menus, queues,
 // conferences, DIDs, outbound routes and time conditions that have none.
@@ -502,7 +502,7 @@ func installDialplans(ctx context.Context, tx pgx.Tx, st *db.Store, list []baseD
 			continue
 		}
 		if err := upsertDialplan(ctx, tx, st, dialplanRow{uuid: newUUID(), context: "${domain_name}", name: d.name, number: d.number,
-			order: d.order, enabled: true, continueOn: d.continueOn, xml: d.xml, description: "RingQswitch default: " + d.description}); err != nil {
+			order: d.order, enabled: true, continueOn: d.continueOn, xml: d.xml, description: "ORswitch default: " + d.description}); err != nil {
 			return added, err
 		}
 		added++

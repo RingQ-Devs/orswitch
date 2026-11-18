@@ -32,7 +32,7 @@ var rePIN = regexp.MustCompile(`^[0-9]{3,16}$`)
 func (s *Server) dialSecurityAPI(ctx context.Context, w http.ResponseWriter, r *http.Request, p *principal, dom domainRow, parts []string) error {
 	for _, t := range []string{"q_security_restrictions", "q_security_rules", "v_pin_numbers", "rq_settings"} {
 		if !s.store.HasTable(t) {
-			return badRequest("the database has no %s table (RingQswitch creates it when manage-schema is on)", t)
+			return badRequest("the database has no %s table (ORswitch creates it when manage-schema is on)", t)
 		}
 	}
 	what := part(parts, 0)

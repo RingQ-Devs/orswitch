@@ -295,7 +295,7 @@ func newRig(t *testing.T) *rig {
     <param name="cdr-tables" value="%s"/>
   </database>
 </configuration>`, dir, strings.ReplaceAll(dsn, "&", "&amp;"), cdrTables())
-	if err := os.WriteFile(filepath.Join(dir, "ringqswitch.xml"), []byte(main), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(dir, "orswitch.xml"), []byte(main), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	cfg, err := config.Load(dir)
@@ -303,7 +303,7 @@ func newRig(t *testing.T) *rig {
 		t.Fatal(err)
 	}
 	log := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelWarn}))
-	if os.Getenv("RQ_TEST_DEBUG") != "" {
+	if os.Getenv("OR_TEST_DEBUG") != "" {
 		log = slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelDebug}))
 	}
 	ctx, cancel := context.WithCancel(context.Background())
@@ -612,7 +612,7 @@ func TestCreateMissingTables(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer store.Close()
-	// RingQswitch's own tables (and the fax extensions) are made at start
+	// ORswitch's own tables (and the fax extensions) are made at start
 	// (manage-schema, on by default).
 	if err := store.EnsureSchema(ctx); err != nil {
 		t.Fatal(err)

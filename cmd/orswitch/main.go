@@ -1,4 +1,4 @@
-// Command ringqswitch runs the RingQswitch PBX.
+// Command orswitch runs the ORswitch PBX.
 package main
 
 import (
@@ -20,8 +20,8 @@ import (
 )
 
 func defaultConfDir() string {
-	for _, d := range []string{"./conf", "/etc/ringqswitch"} {
-		if _, err := os.Stat(d + "/ringqswitch.xml"); err == nil {
+	for _, d := range []string{"./conf", "/etc/orswitch"} {
+		if _, err := os.Stat(d + "/orswitch.xml"); err == nil {
 			return d
 		}
 	}
@@ -45,20 +45,20 @@ func main() {
 	logLevel := flag.String("log-level", "", "override the configured log level (debug|info|warn|error)")
 	version := flag.Bool("version", false, "print version and exit")
 	check := flag.Bool("check", false, "validate the configuration (and database) and exit")
-	compat := flag.Bool("compat", false, "report dialplan applications and functions RingQswitch does not support, and exit")
-	initDB := flag.Bool("init-db", false, "add RingQswitch's tables, default dialplans (feature codes) and AUX codes to the database, and exit")
-	webAccess := flag.String("web-access", "", "give extension@domain web access (password in RQ_WEB_PASSWORD, role in -role), and exit")
+	compat := flag.Bool("compat", false, "report dialplan applications and functions ORswitch does not support, and exit")
+	initDB := flag.Bool("init-db", false, "add ORswitch's tables, default dialplans (feature codes) and AUX codes to the database, and exit")
+	webAccess := flag.String("web-access", "", "give extension@domain web access (password in OR_WEB_PASSWORD, role in -role), and exit")
 	webRole := flag.String("role", "owner", "role for -web-access: owner, manager or user")
 	flag.Parse()
 
 	if *version {
-		fmt.Println("RingQswitch", core.Version)
+		fmt.Println("ORswitch", core.Version)
 		return
 	}
 
 	cfg, err := config.Load(*confDir)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "ringqswitch: configuration error:", err)
+		fmt.Fprintln(os.Stderr, "orswitch: configuration error:", err)
 		os.Exit(1)
 	}
 
@@ -67,7 +67,7 @@ func main() {
 	if *logLevel != "" {
 		level.Set(parseLevel(*logLevel))
 	}
-	// The service log, at its level; rq_cli and other event socket clients
+	// The service log, at its level; or_cli and other event socket clients
 	// can follow every line ("log 7") whatever that level.
 	logs := logbus.New()
 	log := slog.New(logbus.NewHandler(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: level}), logs))
@@ -80,18 +80,18 @@ func main() {
 	var store *db.Store
 	if cfg.Database.DSN != "" {
 		if store, err = db.Open(ctx, cfg.Database, log); err != nil {
-			fmt.Fprintln(os.Stderr, "ringqswitch:", err)
+			fmt.Fprintln(os.Stderr, "orswitch:", err)
 			os.Exit(1)
 		}
 		defer store.Close()
 		if *webAccess != "" {
 			ext, domain, ok := strings.Cut(*webAccess, "@")
 			if !ok {
-				fmt.Fprintln(os.Stderr, "ringqswitch: -web-access extension@domain")
+				fmt.Fprintln(os.Stderr, "orswitch: -web-access extension@domain")
 				os.Exit(1)
 			}
-			if err := web.SetWebAccess(ctx, store, ext, domain, *webRole, os.Getenv("RQ_WEB_PASSWORD")); err != nil {
-				fmt.Fprintln(os.Stderr, "ringqswitch:", err)
+			if err := web.SetWebAccess(ctx, store, ext, domain, *webRole, os.Getenv("OR_WEB_PASSWORD")); err != nil {
+				fmt.Fprintln(os.Stderr, "orswitch:", err)
 				os.Exit(1)
 			}
 			fmt.Printf("%s@%s can sign in to the web interface (%s)\n", ext, domain, *webRole)
@@ -101,19 +101,19 @@ func main() {
 			// Before the overlay: a new database has no tables yet.
 			n, err := web.InstallDefaults(ctx, store)
 			if err != nil {
-				fmt.Fprintln(os.Stderr, "ringqswitch: preparing the database:", err)
+				fmt.Fprintln(os.Stderr, "orswitch: preparing the database:", err)
 				os.Exit(1)
 			}
 			fmt.Printf("database ready (%d item(s) added)\n", n)
 			return
 		}
 		if err := store.Overlay(ctx, cfg); err != nil {
-			fmt.Fprintln(os.Stderr, "ringqswitch: loading the database configuration:", err)
+			fmt.Fprintln(os.Stderr, "orswitch: loading the database configuration:", err)
 			os.Exit(1)
 		}
 	}
 	if *initDB {
-		fmt.Fprintln(os.Stderr, "ringqswitch: -init-db needs a <database> section in ringqswitch.xml")
+		fmt.Fprintln(os.Stderr, "orswitch: -init-db needs a <database> section in orswitch.xml")
 		os.Exit(1)
 	}
 	loader := func(dir string) (*config.Config, error) {
@@ -139,7 +139,7 @@ func main() {
 		if *compat {
 			sw, err := core.New(cfg, log)
 			if err != nil {
-				fmt.Fprintln(os.Stderr, "ringqswitch:", err)
+				fmt.Fprintln(os.Stderr, "orswitch:", err)
 				os.Exit(1)
 			}
 			fmt.Print(sw.CompatReport())
@@ -188,7 +188,7 @@ func main() {
 		}
 	}
 	if strings.HasPrefix(cfg.Settings.ESLPassword, "ChangeMe") || strings.Contains(cfg.Vars["default_password"], "ChangeMe") {
-		log.Warn("default passwords are in use - change default_password and event-socket-password in ringqswitch.xml")
+		log.Warn("default passwords are in use - change default_password and event-socket-password in orswitch.xml")
 	}
 
 	sigs := make(chan os.Signal, 1)
@@ -214,5 +214,5 @@ func main() {
 	if writer != nil {
 		writer.Close() // after Stop: the CDRs of calls ended by the shutdown are written
 	}
-	log.Info("RingQswitch stopped")
+	log.Info("ORswitch stopped")
 }

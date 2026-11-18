@@ -33,7 +33,7 @@ func (c *Core) prompt(ch *Channel, name string) string {
 	if err != nil {
 		return ""
 	}
-	dir := filepath.Join(os.TempDir(), "ringqswitch-prompts-"+Version)
+	dir := filepath.Join(os.TempDir(), "orswitch-prompts-"+Version)
 	path := filepath.Join(dir, name+".wav")
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return ""
